@@ -9,7 +9,11 @@ namespace Test.Interfaces
     public interface ServiceOne : IService
     {
         Task<Response<MethodClass>> MethodOne(MethodClass request);
-        Task<Response<MethodClass>> MethodTwo(MethodClass request);
-        Task<Response<MethodClass>> MethodThree(MethodClass request);
+    }
+    
+    public interface ServiceTwo : IService
+    {
+        Task<Response<MethodClass2>> MethodTwo(MethodClass2 request);
+        Task<Response<MethodClass3>> MethodThree(MethodClass3 request);
     }
 }

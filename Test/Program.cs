@@ -26,6 +26,7 @@ namespace Test
                     services.AddTransient<IServiceProxy, InProcServiceProxy>()
                             .AddScoped<ServiceProxy>()
                             .AddTransient<ServiceOne, ImplService>()
+                            .AddTransient<ServiceTwo, ImplService>()
                             .AddTransient<Testing>()
                 );
 

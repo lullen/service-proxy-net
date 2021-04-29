@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
 namespace Proxy
@@ -52,7 +51,7 @@ namespace Proxy
             if (HasError)
             {
                 var constructor = typeof(Response<T>).GetConstructor(new[] { typeof(Error) });
-                return (Response<TRes>)constructor.Invoke(new[] { Error });
+                return (Response<TRes>)constructor!.Invoke(new[] { Error });
             }
             return next.Invoke();
         }

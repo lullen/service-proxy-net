@@ -22,19 +22,24 @@ namespace Proxy.NewProxy
         {
             using (var scope = _sp.CreateScope())
             {
-                var methodSplit = method.LastIndexOf(".");
-                var clazz = method.Substring(0, methodSplit);
-                var methodName = method.Substring(methodSplit + 1);
+                try
+                {
+                    var methodSplit = method.LastIndexOf(".");
+                    var clazz = method.Substring(0, methodSplit);
+                    var methodName = method.Substring(methodSplit + 1);
 
-                // request.GetType().Assembly.GetType()
-
-                var typeName = $"{app}.Interfaces.{clazz}";
-                var type = request.GetType().Assembly.GetType(typeName);
-                var methodInfo = type.GetMethod(methodName);
-                var service = scope.ServiceProvider.GetRequiredService(type);
-                var res = methodInfo.Invoke(service, new[] { request });
-                var task = res as Task<Response<TRes>>;
-                return task;
+                    var typeName = $"{app}.Interfaces.{clazz}";
+                    var type = request.GetType().Assembly.GetType(typeName);
+                    var methodInfo = type!.GetMethod(methodName);
+                    var service = scope.ServiceProvider.GetRequiredService(type);
+                    var res = methodInfo!.Invoke(service, new[] { request });
+                    var task = res as Task<Response<TRes>>;
+                    return task!;
+                }
+                catch (System.Exception e)
+                {
+                    return Task.FromResult(new Response<TRes>(new Error(ErrorCode.Exception, e.ToString())));
+                }
             }
         }
     }
