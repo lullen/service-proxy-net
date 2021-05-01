@@ -3,7 +3,9 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Proxy.NewProxy;
-using Test.Interfaces;
+using Proxy.Server;
+using Server;
+using Server.Interfaces;
 
 namespace Test
 {
@@ -25,6 +27,7 @@ namespace Test
                 .ConfigureServices((_, services) =>
                     services.AddTransient<IServiceProxy, InProcServiceProxy>()
                             .AddScoped<ServiceProxy>()
+                            .AddTransient<ServiceLoader>()
                             .AddTransient<ServiceOne, ImplService>()
                             .AddTransient<ServiceTwo, ImplService>()
                             .AddTransient<Testing>()

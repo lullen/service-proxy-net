@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+
+message MethodRequestOne {
+    string text = 1;
+}
+
+message MethodResponseOne {
+    string text = 1;
+}
+
+message MethodRequestTwo {
+    string text = 1;
+}
+
+message MethodResponseTwo {
+    string text = 1;
+}
+
+message MethodRequestThree {
+    string text = 1;
+}
+
+message MethodResponseThree {
+    string text = 1;
+}
