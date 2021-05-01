@@ -1,4 +1,4 @@
-namespace Proxy
+namespace Proxy.Models
 {
     public enum ErrorCode
     {

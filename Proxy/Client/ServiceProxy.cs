@@ -2,8 +2,10 @@ using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Proxy.Models;
+using Proxy.Server;
 
-namespace Proxy.NewProxy
+namespace Proxy.Client
 {
     public class ServiceProxy<T> : DispatchProxy where T : class, IService
     {

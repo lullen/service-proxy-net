@@ -37,7 +37,6 @@ namespace Proxy.Server
 
                 var resultProperty = task.GetType().GetProperty("Result");
                 response.Data = Any.Pack((IMessage)resultProperty!.GetValue(task)!);
-                return response;
             }
             catch (System.Exception e)
             {
@@ -45,25 +44,6 @@ namespace Proxy.Server
                 throw;
             }
             return response;
-            // switch (request.Method)
-            // {
-
-            //     case "getaccount":
-            //         var input = request.Data.Unpack<GrpcServiceSample.Generated.GetAccountRequest>();
-            //         var output = await GetAccount(input, context);
-            //         response.Data = Any.Pack(output);
-            //         break;
-            //     case "deposit":
-            //     case "withdraw":
-            //         var transaction = request.Data.Unpack<GrpcServiceSample.Generated.Transaction>();
-            //         var account = request.Method == "deposit" ?
-            //             await Deposit(transaction, context) :
-            //             await Withdraw(transaction, context);
-            //         response.Data = Any.Pack(account);
-            //         break;
-            //     default:
-            //         break;
-            // }
         }
 
         private object GetRequestData(Google.Protobuf.WellKnownTypes.Any data, Type requestType)

@@ -3,10 +3,11 @@ using System;
 using System.Threading.Tasks;
 using Dapr.Client;
 using Google.Protobuf;
+using Proxy.Models;
 
-namespace Proxy.NewProxy
+namespace Proxy.Client
 {
-    public class DaprServiceProxy : Proxy.NewProxy.IServiceProxy
+    public class DaprServiceProxy : IServiceProxy
     {
         public async Task<Response<TRes>> Invoke<T, TRes>(string app, string method, T request)
             where T : class, IMessage, new()

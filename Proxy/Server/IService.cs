@@ -1,4 +1,4 @@
-namespace Proxy.NewProxy
+namespace Proxy.Server
 {
     public interface IService
     {

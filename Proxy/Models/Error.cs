@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Proxy
+namespace Proxy.Models
 {
     public class Error
     {

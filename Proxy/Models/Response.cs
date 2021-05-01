@@ -1,12 +1,12 @@
 using System;
 using System.Text.Json.Serialization;
 
-namespace Proxy
+namespace Proxy.Models
 {
-    public class Response<T> where T : class
+    public class Response<T> where T : class, new()
     {
         public Error Error { get; set; } = Error.Empty;
-        public T? Result { get; set; }
+        public T Result { get; set; } = new T();
 
         public Response(T response)
         {
@@ -18,7 +18,6 @@ namespace Proxy
             Error = error;
         }
 
-
         public Response(Error error, T response)
         {
             Error = error;
@@ -29,6 +28,7 @@ namespace Proxy
         {
 
         }
+
         public bool HasError
         {
             get

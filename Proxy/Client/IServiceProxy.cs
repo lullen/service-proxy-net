@@ -1,8 +1,9 @@
 
 using System.Threading.Tasks;
 using Google.Protobuf;
+using Proxy.Models;
 
-namespace Proxy.NewProxy
+namespace Proxy.Client
 {
     public interface IServiceProxy
     {
