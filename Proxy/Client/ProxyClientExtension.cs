@@ -7,20 +7,40 @@ namespace Proxy.Client
 {
     public static class ProxyClientExtensions
     {
-        public static IServiceCollection AddDaprProxyClient(this IServiceCollection services)
+        public static IServiceCollection AddProxyClient(this IServiceCollection services, ProxyType proxyType)
         {
-            return services
-                .AddTransient<IServiceProxy, DaprServiceProxy>()
-                .AddTransient<ServiceProxy>();
+            if (proxyType == ProxyType.None)
+            {
+                throw new ArgumentOutOfRangeException(nameof(proxyType));
+            }
+            services.AddScoped<CurrentUser>();
+            services.AddTransient(f => new ServiceProxy(f.GetRequiredService<IServiceProvider>(), proxyType));
+            //if (proxyType == ProxyType.HTTP)
+            //{
+            //    services.AddTransient<IServiceProxy, HttpServiceProxy>();
+            //}
+            //else if (proxyType == ProxyType.InProc)
+            //{
+            //    services.AddTransient<IServiceProxy, InProcServiceProxy>();
+            //}
+            //else
+            //{
+            //    throw new ArgumentOutOfRangeException(nameof(proxyType));
+            //}
+
+            return services;
         }
 
-        public static IServiceCollection AddInProcProxyClient(this IServiceCollection services, params Type[] hostedServices)
+        //public static IServiceCollection AddInProcProxyClient(this IServiceCollection services, params Type[] hostedServices)
+        //{
+        //    ServiceStore.RegisterServices(hostedServices);
+        //    return services;
+        //}
+        public static IServiceCollection AddService<T>(this IServiceCollection services) where T : class
         {
-            ServiceLoader.RegisterServices(hostedServices);
-            return services
-                .AddTransient<IServiceProxy, InProcServiceProxy>()
-                .AddTransient<ServiceLoader>()
-                .AddTransient<ServiceProxy>();
+            ServiceStore.RegisterService(typeof(T));
+            services.AddTransient(typeof(T));
+            return services;
         }
     }
 }

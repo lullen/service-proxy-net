@@ -1,6 +1,7 @@
 
 using System;
 using Microsoft.Extensions.DependencyInjection;
+using Proxy.Client;
 
 namespace Proxy.Server
 {
@@ -8,10 +9,15 @@ namespace Proxy.Server
     {
         public static IServiceCollection AddDaprServer(this IServiceCollection services, params Type[] hostedServices)
         {
-            ServiceLoader.RegisterServices(hostedServices);
+            ServiceStore.RegisterServices(hostedServices);
             return services
-                .AddTransient<ServiceLoader>()
                 .AddTransient<DaprServer>();
         }
+
+        public static IServiceCollection AddProxyServer(this IServiceCollection services)
+        {
+            return services.AddScoped<CurrentUser>();
+        }
+
     }
 }

@@ -1,12 +1,22 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Proxy;
+using Proxy.Client;
+using Proxy.Models;
+using Proxy.Server;
 using Server.Interfaces;
 
 namespace Server
 {
-    public class ImplService : ServiceOne, ServiceTwo
+
+    [ExposedService]
+    public class ServiceImpl : ServiceOne, ServiceTwo, IService
     {
+        private readonly CurrentUser currentUser;
+
+        public ServiceImpl(CurrentUser currentUser)
+        {
+            this.currentUser = currentUser;
+        }
         public Task<Response<MethodResponseOne>> MethodOne(MethodRequestOne request)
         {
             if (request.Text.Contains("next"))
@@ -14,7 +24,7 @@ namespace Server
                 return Task.FromResult(new Response<MethodResponseOne>(new Error(ErrorCode.InvalidInput, "Next is forbidden")));
             }
 
-            Console.WriteLine("Method one called with request: " + request.Text);
+            Console.WriteLine("Method one called with request: " + request.Text + ". " + currentUser.Metadata["Authorization"]);
             return Task.FromResult(new Response<MethodResponseOne>(new MethodResponseOne { Text = request.Text }));
         }
 

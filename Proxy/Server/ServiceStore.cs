@@ -2,41 +2,30 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Proxy.Server
 {
-    public class ServiceLoader
+    public class ServiceStore
     {
-        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly ILogger<ServiceStore> logger;
         private static Dictionary<string, Type> _services = new Dictionary<string, Type>();
         private static IEnumerable<Subscription> _subscriptions = new List<Subscription>();
 
-        public ServiceLoader(IServiceScopeFactory scopeFactory)
+        public ServiceStore(ILogger<ServiceStore> logger)
         {
-            _scopeFactory = scopeFactory;
+            this.logger = logger;
         }
 
-        public IServiceScope CreateScope()
+        public static IService GetService(string service, IServiceProvider provider)
         {
-            return _scopeFactory.CreateScope();
+            var invokeClass = _services[service.ToLowerInvariant()];
+            return (IService)provider.GetRequiredService(invokeClass);
         }
 
-        public IService Create(string method, IServiceScope scope)
-        {
-            var className = method.Substring(0, method.LastIndexOf(".")).ToLower();
-            var invokeClass = _services[className];
-            return (IService)scope.ServiceProvider.GetRequiredService(invokeClass);
-        }
-
-        public MethodInfo GetMethod(String methodName, IService invokeClass)
+        public static MethodInfo GetMethod(string methodName, IService invokeClass)
         {
             MethodInfo? invokeMethod = null;
-
-            if (methodName.Contains("."))
-            {
-                methodName = methodName.Substring(methodName.LastIndexOf(".") + 1);
-            }
-
             methodName = methodName.ToLower();
 
             foreach (var method in invokeClass.GetType().GetMethods())
@@ -66,6 +55,12 @@ namespace Proxy.Server
                 }
             }
             // _logger.info("Registered {} services.", _services.size());
+        }
+
+        public static void RegisterService(Type service)
+        {
+            _services.Add(service.Name.ToLower(), service);
+            //logger.info("Registered {} as a service.", service.Name);
         }
 
         public static IEnumerable<Subscription> GetSubscriptions()

@@ -1,6 +1,8 @@
 
+using System;
 using System.Threading.Tasks;
 using Google.Protobuf;
+using Microsoft.Extensions.DependencyInjection;
 using Proxy.Models;
 using Proxy.Server;
 
@@ -8,29 +10,34 @@ namespace Proxy.Client
 {
     public class InProcServiceProxy : IServiceProxy
     {
-        private readonly ServiceLoader _serviceLoader;
+        private readonly IServiceProvider sp;
+        private readonly CurrentUser currentUser;
 
-        public InProcServiceProxy(ServiceLoader serviceLoader)
+        public InProcServiceProxy(IServiceProvider sp, CurrentUser currentUser)
         {
-            _serviceLoader = serviceLoader;
+            this.sp = sp;
+            this.currentUser = currentUser;
         }
 
-        public Task<Response<TRes>> Invoke<T, TRes>(string app, string method, T request)
-            where T : class, IMessage, new()
-            where TRes : class, IMessage, new()
+        public async Task<Response<TRes>> Invoke<T, TRes>(string appName, string serviceName, string methodName, T request)
+            where T : class, new()
+            where TRes : class, new()
         {
-            using var scope = _serviceLoader.CreateScope();
-            var service = _serviceLoader.Create(method, scope);
-            var methodToInvoke = _serviceLoader.GetMethod(method, service);
+            using var scope = sp.CreateScope();
+            var newCurrentUser = scope.ServiceProvider.GetRequiredService<CurrentUser>();
+            newCurrentUser.Metadata = currentUser.Metadata;
+
+            var serviceImpl = ServiceStore.GetService(serviceName, scope.ServiceProvider);
+            var methodToInvoke = ServiceStore.GetMethod(methodName, serviceImpl);
             try
             {
-                var res = methodToInvoke!.Invoke(service, new[] { request });
+                var res = methodToInvoke.Invoke(serviceImpl, new[] { request });
                 var task = res as Task<Response<TRes>>;
-                return task!;
+                return await task!;
             }
             catch (System.Exception e)
             {
-                return Task.FromResult(new Response<TRes>(new Error(ErrorCode.Exception, e.ToString())));
+                return new Response<TRes>(new Error(ErrorCode.Exception, e.ToString()));
             }
         }
     }

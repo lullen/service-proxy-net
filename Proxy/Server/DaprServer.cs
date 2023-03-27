@@ -13,10 +13,12 @@ namespace Proxy.Server
 {
     public class DaprServer : AppCallback.AppCallbackBase
     {
-        private readonly ServiceLoader _serviceLoader;
+        private readonly IServiceScopeFactory scopeFactory;
+        private readonly ServiceStore _serviceLoader;
 
-        public DaprServer(IServiceScopeFactory scopeFactory, ServiceLoader serviceLoader)
+        public DaprServer(IServiceScopeFactory scopeFactory, ServiceStore serviceLoader)
         {
+            this.scopeFactory = scopeFactory;
             _serviceLoader = serviceLoader;
         }
 
@@ -24,9 +26,9 @@ namespace Proxy.Server
         {
             var response = new InvokeResponse();
 
-            using var scope = _serviceLoader.CreateScope();
-            var service = _serviceLoader.Create(request.Method, scope);
-            var method = _serviceLoader.GetMethod(request.Method, service);
+            using var scope = scopeFactory.CreateScope();
+            var service = ServiceStore.GetService(request.Method, scope.ServiceProvider);
+            var method = ServiceStore.GetMethod(request.Method, service);
 
             try
             {
