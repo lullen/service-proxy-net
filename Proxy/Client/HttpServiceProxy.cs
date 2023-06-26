@@ -1,6 +1,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Reflection.PortableExecutable;
@@ -41,7 +43,17 @@ namespace Proxy.Client
                 var httpClient = scope.ServiceProvider.GetRequiredService<HttpClient>();
 
                 var url = $"{baseUrl}/{serviceName}/{methodName}";
-                var requestMessage = CreateRequest(url, requestData, currentUser.Metadata);
+
+                HttpRequestMessage requestMessage;
+
+                if (HasStreamAsProperty(requestData.GetType()))
+                {
+                    requestMessage = CreateMultipartRequest(url, requestData, currentUser.Metadata);
+                }
+                else
+                {
+                    requestMessage = CreateRequest(url, requestData, currentUser.Metadata);
+                }
                 var responseMessage = await httpClient.SendAsync(requestMessage);
                 responseMessage.EnsureSuccessStatusCode();
 
@@ -59,6 +71,42 @@ namespace Proxy.Client
             }
 
         }
+
+        private bool HasStreamAsProperty(Type type)
+        {
+            foreach (var property in type.GetProperties())
+            {
+                if (property.PropertyType == typeof(System.IO.Stream))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private HttpRequestMessage CreateMultipartRequest<T>(string url, T data, Dictionary<string, StringValues> headers)
+        {
+            var stream = GetStreamFromProperty(data.GetType(), data);
+
+            var request = new HttpRequestMessage(HttpMethod.Post, url);
+
+            var stringContent = new StringContent(JsonSerializer.Serialize(data));
+            var streamContent = new StreamContent(stream);
+            var content = new MultipartFormDataContent
+            {
+                { stringContent, "data" },
+                { streamContent, "file", "file.file" }
+            };
+            request.Content = content;
+            return request;
+        }
+
+        private Stream GetStreamFromProperty(Type type, object value)
+        {
+            var property = type.GetProperties().SingleOrDefault(p => p.PropertyType == typeof(Stream));
+            return (property!.GetValue(value) as Stream)!;
+        }
+
 
         private HttpRequestMessage CreateRequest<T>(string url, T data, Dictionary<string, StringValues> headers)
         {

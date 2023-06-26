@@ -24,7 +24,7 @@ namespace Server
                 return Task.FromResult(new Response<MethodResponseOne>(new Error(ErrorCode.InvalidInput, "Next is forbidden")));
             }
 
-            Console.WriteLine("Method one called with request: " + request.Text + ". " + currentUser.Metadata["Authorization"]);
+            Console.WriteLine("Method one called with request: " + request.Text + ". " + currentUser.Token);
             return Task.FromResult(new Response<MethodResponseOne>(new MethodResponseOne { Text = request.Text }));
         }
 
@@ -48,6 +48,16 @@ namespace Server
 
             Console.WriteLine("Method three called with request: " + request.Text);
             return Task.FromResult(new Response<MethodResponseThree>(new MethodResponseThree { Text = request.Text }));
+        }
+
+        public async Task<Response<MethodResponseOne>> UploadFile(FileTestRequest request)
+        {
+            Console.WriteLine($"Saving file {request.Name} with id {request.Id}");
+            using var file = System.IO.File.Create($"{request.Name}.txt");
+            await request.File.CopyToAsync(file);
+            file.Flush();
+            file.Close();
+            return new Response<MethodResponseOne>(new MethodResponseOne { Text = "File saved" });
         }
 
     }

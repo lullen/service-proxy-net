@@ -96,4 +96,23 @@ namespace Proxy.Client
             return (T)proxy;
         }
     }
+
+    public static class StaticServiceProxy
+    {
+        private static IServiceProvider? _sp;
+        private static ProxyType _proxyType;
+
+        public static void Init(IServiceProvider sp, ProxyType proxyType)
+        {
+            _sp = sp;
+            _proxyType = proxyType;
+        }
+
+        public static T Create<T>(string app, string service) where T : class, IService
+        {
+            _ = _sp ?? throw new InvalidOperationException("ServiceProxy is not initalized.");
+            object proxy = ServiceProxy<T>.Create(_proxyType, _sp, app, service);
+            return (T)proxy;
+        }
+    }
 }

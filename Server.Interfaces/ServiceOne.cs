@@ -9,6 +9,7 @@ namespace Server.Interfaces
     public interface ServiceOne : IService
     {
         Task<Response<MethodResponseOne>> MethodOne(MethodRequestOne request);
+        Task<Response<MethodResponseOne>> UploadFile(FileTestRequest request);
     }
 
     public interface ServiceTwo : IService

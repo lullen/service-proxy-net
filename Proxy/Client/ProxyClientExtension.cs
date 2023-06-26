@@ -1,5 +1,6 @@
 
 using System;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Proxy.Server;
 
@@ -15,6 +16,7 @@ namespace Proxy.Client
             }
             services.AddScoped<CurrentUser>();
             services.AddTransient(f => new ServiceProxy(f.GetRequiredService<IServiceProvider>(), proxyType));
+
             //if (proxyType == ProxyType.HTTP)
             //{
             //    services.AddTransient<IServiceProxy, HttpServiceProxy>();
@@ -29,6 +31,12 @@ namespace Proxy.Client
             //}
 
             return services;
+        }
+
+        public static IApplicationBuilder UseClientProxy(this IApplicationBuilder builder, ProxyType proxyType)
+        {
+            StaticServiceProxy.Init(builder.ApplicationServices, proxyType);
+            return builder;
         }
 
         //public static IServiceCollection AddInProcProxyClient(this IServiceCollection services, params Type[] hostedServices)

@@ -11,4 +11,10 @@
     <ProjectReference Include="..\Server.Interfaces\Server.Interfaces.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="test.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

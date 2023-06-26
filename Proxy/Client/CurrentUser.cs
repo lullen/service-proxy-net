@@ -10,6 +10,7 @@ namespace Proxy.Client
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public Dictionary<string, StringValues> Metadata { get; set; } = new();
+        public string Token { get; set; } = string.Empty;
         //public CurrentUser(Dictionary<string, object> metadata)
         //{
         //    Metadata = metadata;
