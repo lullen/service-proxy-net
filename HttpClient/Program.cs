@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Primitives;
-using Proxy.Client;
+using Luizio.ServiceProxy.Client;
 using Server.Interfaces;
 using System.IO;
 using System.Runtime.CompilerServices;

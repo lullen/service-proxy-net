@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Proxy.Client;
-using Proxy.Models;
-using Proxy.Server;
+using Luizio.ServiceProxy.Client;
+using Luizio.ServiceProxy.Models;
+using Luizio.ServiceProxy.Server;
 using Server.Interfaces;
 
 namespace Server;

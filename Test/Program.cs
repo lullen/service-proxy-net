@@ -2,8 +2,8 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Proxy.Client;
-using Proxy.Server;
+using Luizio.ServiceProxy.Client;
+using Luizio.ServiceProxy.Server;
 using Server;
 using Server.Interfaces;
 

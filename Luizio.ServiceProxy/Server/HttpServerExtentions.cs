@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
-using Proxy.Client;
+using Luizio.ServiceProxy.Client;
 using System;
 using System.Collections.Generic;
 using System.IO;

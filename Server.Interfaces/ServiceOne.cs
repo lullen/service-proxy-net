@@ -1,7 +1,7 @@
 
 using System.Threading.Tasks;
-using Proxy.Models;
-using Proxy.Server;
+using Luizio.ServiceProxy.Models;
+using Luizio.ServiceProxy.Server;
 
 namespace Server.Interfaces;
 

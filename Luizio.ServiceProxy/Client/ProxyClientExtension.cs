@@ -2,7 +2,7 @@
 using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Proxy.Server;
+using Luizio.ServiceProxy.Server;
 
 namespace Luizio.ServiceProxy.Client;
 

@@ -1,4 +1,4 @@
-using Proxy.Server;
+using Luizio.ServiceProxy.Server;
 using Server;
 
 var builder = WebApplication.CreateBuilder(args);

@@ -3,7 +3,7 @@
 //using System.Threading.Tasks;
 //using Dapr.Client;
 //using Google.Protobuf;
-//using Proxy.Models;
+//using Luizio.ServiceProxy.Models;
 
 //namespace Luizio.ServiceProxy.Client
 //{
