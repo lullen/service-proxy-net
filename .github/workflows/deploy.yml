@@ -1,7 +1,7 @@
 name: Deploy
 
 env:
-  PROJECT_FILE: Luzio.ServiceProxy/Luzio.ServiceProxy.csproj
+  PROJECT_FILE: Luizio.ServiceProxy/Luizio.ServiceProxy.csproj
 
 on:
   workflow_dispatch:
