@@ -37,4 +37,4 @@ jobs:
         run: dotnet pack -c Release --include-symbols --no-build ${{env.PROJECT_FILE}}
 
       - name: Push
-        run: dotnet nuget push Luzio.ServiceProxy --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json ${{env.PROJECT_FILE}}
+        run: dotnet nuget push Luzio.ServiceProxy --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json Luizio.ServiceProxy/bin/Release
