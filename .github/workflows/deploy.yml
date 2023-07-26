@@ -34,7 +34,7 @@ jobs:
         run: dotnet build -c Release --no-restore ${{env.PROJECT_FILE}}
 
       - name: Pack
-        run: dotnet pack --include-symbols ${{env.PROJECT_FILE}}
+        run: dotnet pack --include-symbols --no-build ${{env.PROJECT_FILE}}
 
       - name: Push
         run: dotnet nuget push --api-key ${{secrets.NUGET_API_KEY}} ${{env.PROJECT_FILE}}
