@@ -13,7 +13,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Proxy.Models;
 
-namespace Proxy.Client;
+namespace Luizio.ServiceProxy.Client;
 
 public class HttpServiceProxy : IServiceProxy
 {

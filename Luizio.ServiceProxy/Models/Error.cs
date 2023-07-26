@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Proxy.Models;
+namespace Luizio.ServiceProxy.Models;
 
 public class Error
 {

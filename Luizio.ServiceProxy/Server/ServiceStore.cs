@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Proxy.Server;
+namespace Luizio.ServiceProxy.Server;
 
 public class ServiceStore
 {

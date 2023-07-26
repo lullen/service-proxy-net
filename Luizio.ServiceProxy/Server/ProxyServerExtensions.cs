@@ -4,7 +4,7 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Proxy.Client;
 
-namespace Proxy.Server;
+namespace Luizio.ServiceProxy.Server;
 
 public static class ProxyServerExtensions
 {

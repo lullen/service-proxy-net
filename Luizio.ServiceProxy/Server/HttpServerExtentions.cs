@@ -11,7 +11,7 @@ using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Proxy.Server;
+namespace Luizio.ServiceProxy.Server;
 
 public static class HttpServerExtentions
 {

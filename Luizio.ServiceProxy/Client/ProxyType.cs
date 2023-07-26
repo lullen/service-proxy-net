@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Proxy.Client;
+namespace Luizio.ServiceProxy.Client;
 
 public enum ProxyType
 {

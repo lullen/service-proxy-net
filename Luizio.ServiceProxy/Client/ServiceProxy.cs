@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Proxy.Models;
 using Proxy.Server;
 
-namespace Proxy.Client;
+namespace Luizio.ServiceProxy.Client;
 
 public class ServiceProxy<T> : DispatchProxy where T : class, IService
 {

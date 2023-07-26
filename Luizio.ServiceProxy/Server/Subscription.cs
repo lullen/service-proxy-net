@@ -1,5 +1,5 @@
 
-namespace Proxy.Server;
+namespace Luizio.ServiceProxy.Server;
 
 public class Subscription
 {

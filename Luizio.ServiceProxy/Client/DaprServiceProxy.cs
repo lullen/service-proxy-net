@@ -5,7 +5,7 @@
 //using Google.Protobuf;
 //using Proxy.Models;
 
-//namespace Proxy.Client
+//namespace Luizio.ServiceProxy.Client
 //{
 //    public class DaprServiceProxy : IServiceProxy
 //    {

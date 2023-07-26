@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Proxy.Client;
+namespace Luizio.ServiceProxy.Client;
 
 public class CurrentUser
 {

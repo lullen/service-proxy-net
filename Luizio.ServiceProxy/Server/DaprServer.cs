@@ -4,7 +4,7 @@
 //using Microsoft.Extensions.DependencyInjection;
 //using Type = System.Type;
 
-//namespace Proxy.Server
+//namespace Luizio.ServiceProxy.Server
 //{
 //    public class DaprServer : AppCallback.AppCallbackBase
 //    {

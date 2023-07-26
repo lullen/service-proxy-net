@@ -1,7 +1,7 @@
 
 using System;
 
-namespace Proxy.Server;
+namespace Luizio.ServiceProxy.Server;
 
 
 [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]

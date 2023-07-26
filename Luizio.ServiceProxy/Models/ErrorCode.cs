@@ -1,4 +1,4 @@
-namespace Proxy.Models;
+namespace Luizio.ServiceProxy.Models;
 
 public enum ErrorCode
 {

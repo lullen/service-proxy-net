@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Proxy.Server;
 
-namespace Proxy.Client;
+namespace Luizio.ServiceProxy.Client;
 
 public static class ProxyClientExtensions
 {

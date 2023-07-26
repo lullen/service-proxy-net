@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Proxy.Models;
 
-namespace Proxy.Client;
+namespace Luizio.ServiceProxy.Client;
 
 public interface IServiceProxy
 {
