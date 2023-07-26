@@ -8,6 +8,7 @@ public enum ErrorCode
     Unauthorized = 3,
     AlreadyExists = 4,
     InvalidInput = 5,
-    Skipped = 6
+    Skipped = 6,
+    Error = 7,
 
 }
