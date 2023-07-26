@@ -1,0 +1,33 @@
+name: Build
+env:
+  PROJECT_FILE: Proxy/Proxy.csproj
+
+on:
+  # workflow_dispatch:
+  push:
+    branches: ["main"]
+  # pull_request:
+  #   branches: ["main"]
+
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 7.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore ${{env.PROJECT_FILE}}
+
+      - name: Build
+        run: dotnet build -c Release --no-restore ${{env.PROJECT_FILE}}

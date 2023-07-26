@@ -1,10 +1,9 @@
 
-namespace Proxy.Server
+namespace Proxy.Server;
+
+public class Subscription
 {
-    public class Subscription
-    {
-        public string Method { get; set; } = string.Empty;
-        public string Topic { get; set; } = string.Empty;
-        public string PubSub { get; set; } = string.Empty;
-    }
+    public string Method { get; set; } = string.Empty;
+    public string Topic { get; set; } = string.Empty;
+    public string PubSub { get; set; } = string.Empty;
 }

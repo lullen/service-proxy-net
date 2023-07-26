@@ -1,7 +1,6 @@
-namespace Proxy.Server
+namespace Proxy.Server;
+
+public interface IService
 {
-    public interface IService
-    {
-        
-    }
+    
 }

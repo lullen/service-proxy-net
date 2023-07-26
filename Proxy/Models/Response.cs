@@ -1,68 +1,77 @@
 using System;
 using System.Text.Json.Serialization;
 
-namespace Proxy.Models
+namespace Proxy.Models;
+
+public class Response<T> where T : class, new()
 {
-    public class Response<T> where T : class, new()
+    public Error Error { get; set; } = Error.Empty;
+    public T Result { get; set; } = new T();
+
+    public Response(T response)
     {
-        public Error Error { get; set; } = Error.Empty;
-        public T Result { get; set; } = new T();
+        Result = response;
+    }
 
-        public Response(T response)
+    public Response(Error error)
+    {
+        Error = error;
+    }
+
+    public Response(Error error, T response)
+    {
+        Error = error;
+        Result = response;
+    }
+
+    public Response()
+    {
+
+    }
+
+    public bool HasError
+    {
+        get
         {
-            Result = response;
+            return Error.HasError || Result == null;
         }
+    }
 
-        public Response(Error error)
+    [JsonIgnore]
+    public bool AlreadyExists
+    {
+        get
         {
-            Error = error;
+            return HasError && Error.Code == ErrorCode.AlreadyExists;
         }
+    }
 
-        public Response(Error error, T response)
+    public Response<TRes> Next<TRes>(Func<Response<TRes>> next) where TRes : class, new()
+    {
+        if (HasError)
         {
-            Error = error;
-            Result = response;
+            return Error;
         }
+        return next.Invoke();
+    }
 
-        public Response()
+    public Response<T> OnError(Func<Error, Response<T>> onError)
+    {
+        if (!HasError)
         {
-
+            return this;
         }
+        return onError.Invoke(Error);
+    }
 
-        public bool HasError
-        {
-            get
-            {
-                return Error.HasError || Result == null;
-            }
-        }
 
-        [JsonIgnore]
-        public bool AlreadyExists
-        {
-            get
-            {
-                return HasError && Error.Code == ErrorCode.AlreadyExists;
-            }
-        }
+    public static implicit operator Response<T>(Error value)
+    {
+        return new Response<T>(value);
+    }
 
-        public Response<TRes> Next<TRes>(Func<Response<TRes>> next) where TRes : class, new()
-        {
-            if (HasError)
-            {
-                var constructor = typeof(Response<T>).GetConstructor(new[] { typeof(Error) });
-                return (Response<TRes>)constructor!.Invoke(new[] { Error });
-            }
-            return next.Invoke();
-        }
-
-        public Response<T> OnError(Func<Error, Response<T>> onError)
-        {
-            if (!HasError)
-            {
-                return this;
-            }
-            return onError.Invoke(Error);
-        }
+    public static implicit operator Response<T>(T value)
+    {
+        return new Response<T>(value);
     }
 }

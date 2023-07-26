@@ -5,8 +5,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddMvc();
-builder.Services.AddProxyServer();
 builder.Services.AddTransient<ServiceImpl>();
+builder.Services.AddProxyServer();
 
 var app = builder.Build();
 

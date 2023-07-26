@@ -4,14 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Server.Interfaces
-{
-    public class MethodResponseOne
-    {
-        public string Text { get; set; } = string.Empty;
-        public MethodResponseOne()
-        {
+namespace Server.Interfaces;
 
-        }
+public class MethodResponseOne
+{
+    public string Text { get; set; } = string.Empty;
+    public MethodResponseOne()
+    {
+
     }
 }

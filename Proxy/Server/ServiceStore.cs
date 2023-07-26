@@ -1,91 +1,92 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Proxy.Server
+namespace Proxy.Server;
+
+public class ServiceStore
 {
-    public class ServiceStore
+    private readonly ILogger<ServiceStore> logger;
+    private static Dictionary<string, Type> _services = new Dictionary<string, Type>();
+    private static IEnumerable<Subscription> _subscriptions = new List<Subscription>();
+
+    public ServiceStore(ILogger<ServiceStore> logger)
     {
-        private readonly ILogger<ServiceStore> logger;
-        private static Dictionary<string, Type> _services = new Dictionary<string, Type>();
-        private static IEnumerable<Subscription> _subscriptions = new List<Subscription>();
+        this.logger = logger;
+    }
 
-        public ServiceStore(ILogger<ServiceStore> logger)
+    public static IService GetService(string service, IServiceProvider provider)
+    {
+        var invokeClass = _services[service.ToLowerInvariant()];
+        return (IService)provider.GetRequiredService(invokeClass);
+
+    }
+
+    public static MethodInfo GetMethod(string methodName, IService invokeClass)
+    {
+        MethodInfo? invokeMethod = null;
+        methodName = methodName.ToLower();
+
+        foreach (var method in invokeClass.GetType().GetMethods())
         {
-            this.logger = logger;
-        }
-
-        public static IService GetService(string service, IServiceProvider provider)
-        {
-            var invokeClass = _services[service.ToLowerInvariant()];
-            return (IService)provider.GetRequiredService(invokeClass);
-        }
-
-        public static MethodInfo GetMethod(string methodName, IService invokeClass)
-        {
-            MethodInfo? invokeMethod = null;
-            methodName = methodName.ToLower();
-
-            foreach (var method in invokeClass.GetType().GetMethods())
+            if (method.Name.ToLower() == methodName)
             {
-                if (method.Name.ToLower() == methodName)
-                {
-                    invokeMethod = method;
-                    break;
-                }
+                invokeMethod = method;
+                break;
             }
-
-            if (invokeMethod == null)
-            {
-                throw new Exception("Method " + methodName + " not found");
-            }
-            return invokeMethod;
         }
 
-        public static void RegisterServices(params Type[] services)
+        if (invokeMethod == null)
         {
-            foreach (var service in services)
-            {
-                var exposedService = service.GetCustomAttribute<ExposedServiceAttribute>();
-                if (exposedService != null)
-                {
-                    _services.Add(service.Name.ToLower(), service);
-                }
-            }
-            // _logger.info("Registered {} services.", _services.size());
+            throw new Exception("Method " + methodName + " not found");
         }
+        return invokeMethod;
+    }
 
-        public static void RegisterService(Type service)
+    public static void RegisterServices(params Type[] services)
+    {
+        foreach (var service in services)
         {
             _services.Add(service.Name.ToLower(), service);
-            //logger.info("Registered {} as a service.", service.Name);
         }
+        // _logger.info("Registered {} services.", _services.size());
+    }
 
-        public static IEnumerable<Subscription> GetSubscriptions()
+    public static void RegisterService(Type service)
+    {
+        _services.Add(service.Name.ToLower(), service);
+        //logger.info("Registered {} as a service.", service.Name);
+    }
+
+    public static IEnumerable<Subscription> GetSubscriptions()
+    {
+        return _subscriptions;
+    }
+
+    public static void RegisterSubscribers(string pubsub)
+    {
+
+        foreach (var item in _services)
         {
-            return _subscriptions;
-        }
-
-        public static void RegisterSubscribers(string pubsub)
-        {
-
-            foreach (var item in _services)
+            foreach (var method in item.Value.GetMethods())
             {
-                foreach (var method in item.Value.GetMethods())
+                var subscriber = method.GetCustomAttribute<SubscriberAttribute>();
+                if (subscriber != null)
                 {
-                    var subscriber = method.GetCustomAttribute<SubscriberAttribute>();
-                    if (subscriber != null)
+                    var s = new Subscription
                     {
-                        var s = new Subscription();
-                        s.Method = item.Key + "." + method.Name;
-                        s.Topic = subscriber.Topic;
-                        s.PubSub = pubsub;
-                    }
+                        Method = item.Key + "." + method.Name,
+                        Topic = subscriber.Topic,
+                        PubSub = pubsub
+                    };
                 }
             }
-            // _logger.info("Registered {} topics", _subscriptions.size());
         }
+        // _logger.info("Registered {} topics", _subscriptions.size());
     }
 }

@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Server.Interfaces
+namespace Server.Interfaces;
+
+public class MethodResponseTwo
 {
-    public class MethodResponseTwo
-    {
-        public string Text { get; set; } = string.Empty;
-    }
+    public string Text { get; set; } = string.Empty;
 }
