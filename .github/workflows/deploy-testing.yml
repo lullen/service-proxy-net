@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy Testing
 
 env:
   PROJECT_FILE: Luizio.ServiceProxy.Testing/Luizio.ServiceProxy.Testing.csproj
