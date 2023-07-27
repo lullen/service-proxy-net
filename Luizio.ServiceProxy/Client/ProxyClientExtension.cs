@@ -1,10 +1,8 @@
 
 using System;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Luizio.ServiceProxy.Server;
 using System.Linq;
-using Microsoft.Extensions.Hosting;
 
 namespace Luizio.ServiceProxy.Client;
 
@@ -17,7 +15,7 @@ public static class ProxyClientExtensions
             throw new ArgumentOutOfRangeException(nameof(proxyType));
         }
         services.AddScoped<CurrentUser>();
-        services.AddTransient(f => new Proxy(f.GetRequiredService<IServiceProvider>(), proxyType));
+        services.AddTransient<IProxy, Proxy>(f => new Proxy(f.GetRequiredService<IServiceProvider>(), proxyType));
 
         //if (proxyType == ProxyType.HTTP)
         //{
