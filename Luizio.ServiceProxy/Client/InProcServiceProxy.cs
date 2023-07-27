@@ -31,7 +31,7 @@ public class InProcServiceProxy : IServiceProxy
         newCurrentUser.Token = currentUser.Token;
 
         var serviceImpl = ServiceStore.GetService(serviceName, scope.ServiceProvider);
-        var methodToInvoke = ServiceStore.GetMethod(methodName, serviceImpl);
+        var methodToInvoke = ServiceStore.GetMethod(methodName, typeof(T), serviceImpl);
         try
         {
             var res = methodToInvoke.Invoke(serviceImpl, new[] { request });

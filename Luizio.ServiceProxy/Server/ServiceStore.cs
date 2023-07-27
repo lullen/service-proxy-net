@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -30,14 +31,14 @@ public class ServiceStore
 
     }
 
-    public static MethodInfo GetMethod(string methodName, IService invokeClass)
+    public static MethodInfo GetMethod(string methodName, Type parameterType, IService invokeClass)
     {
         MethodInfo? invokeMethod = null;
         methodName = methodName.ToLower();
 
         foreach (var method in invokeClass.GetType().GetMethods())
         {
-            if (method.Name.ToLower() == methodName)
+            if (method.Name.ToLower() == methodName && method.GetParameters().FirstOrDefault()?.ParameterType == parameterType)
             {
                 invokeMethod = method;
                 break;
@@ -46,18 +47,9 @@ public class ServiceStore
 
         if (invokeMethod == null)
         {
-            throw new Exception("Method " + methodName + " not found");
+            throw new Exception($"Method {methodName} with parameter {parameterType} not found.");
         }
         return invokeMethod;
-    }
-
-    public static void RegisterServices(params Type[] services)
-    {
-        foreach (var service in services)
-        {
-            _services.Add(service.Name.ToLower(), service);
-        }
-        // _logger.info("Registered {} services.", _services.size());
     }
 
     public static void RegisterService(Type service)
