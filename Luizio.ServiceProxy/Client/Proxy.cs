@@ -80,7 +80,12 @@ public class ServiceProxy<T> : DispatchProxy where T : class, IService
     }
 }
 
-public class Proxy
+public interface IProxy
+{
+    T Create<T>(string app, string service) where T : class, IService;
+}
+
+public class Proxy : IProxy
 {
     private readonly IServiceProvider _sp;
     private readonly ProxyType _proxyType;
