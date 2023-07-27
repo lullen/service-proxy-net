@@ -15,7 +15,7 @@ builder.Services.Configure<ServiceSettings>(builder.Configuration);
 builder.Services.AddHttpClient();
 
 var app = builder.Build();
-app.UseClientProxy(proxyType);
+//app.UseClientProxy(proxyType);
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -30,7 +30,7 @@ app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapGet("/", async (ServiceProxy sp, CurrentUser user) =>
+app.MapGet("/", async (Proxy sp, CurrentUser user) =>
 {
     //var streamFile = System.IO.File.OpenRead("test.txt");
     //var resFile = await StaticServiceProxy.Create<ServiceOne>("HttpServer", "ServiceImpl").UploadFile(new FileTestRequest
@@ -60,9 +60,9 @@ app.MapGet("/", async (ServiceProxy sp, CurrentUser user) =>
         Thread.Sleep(5000);
     }
     //var ress = res3;
-    ////var ress = await ServiceProxy.Create<ServiceOne>("HttpServer", "ServiceImpl").MethodOne(new MethodRequestOne { Text = "Hi from Method one!" })
-    ////            .Next((res) => ServiceProxy.Create<ServiceTwo>("HttpServer", "ServiceImpl").MethodTwo(new MethodRequestTwo { Text = res.Text + " Hi from Method two!" }))
-    ////            .Next((res) => ServiceProxy.Create<ServiceTwo>("HttpServer", "ServiceImpl").MethodThree(new MethodRequestThree { Text = res.Text + " Hi from Method three!" }))
+    ////var ress = await Proxy.Create<ServiceOne>("HttpServer", "ServiceImpl").MethodOne(new MethodRequestOne { Text = "Hi from Method one!" })
+    ////            .Next((res) => Proxy.Create<ServiceTwo>("HttpServer", "ServiceImpl").MethodTwo(new MethodRequestTwo { Text = res.Text + " Hi from Method two!" }))
+    ////            .Next((res) => Proxy.Create<ServiceTwo>("HttpServer", "ServiceImpl").MethodThree(new MethodRequestThree { Text = res.Text + " Hi from Method three!" }))
     ////            .OnError((error) =>
     ////            {
     ////                Console.WriteLine("ERROR!!! " + error.Description);

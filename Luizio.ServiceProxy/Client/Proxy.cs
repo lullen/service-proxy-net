@@ -80,12 +80,12 @@ public class ServiceProxy<T> : DispatchProxy where T : class, IService
     }
 }
 
-public class ServiceProxy
+public class Proxy
 {
-    private IServiceProvider? _sp;
-    private ProxyType _proxyType;
+    private readonly IServiceProvider _sp;
+    private readonly ProxyType _proxyType;
 
-    public ServiceProxy(IServiceProvider sp, ProxyType proxyType)
+    public Proxy(IServiceProvider sp, ProxyType proxyType)
     {
         _sp = sp;
         _proxyType = proxyType;
@@ -93,27 +93,26 @@ public class ServiceProxy
 
     public T Create<T>(string app, string service) where T : class, IService
     {
-        _ = _sp ?? throw new InvalidOperationException("ServiceProxy is not initalized.");
         object proxy = ServiceProxy<T>.Create(_proxyType, _sp, app, service);
         return (T)proxy;
     }
 }
 
-public static class Proxy
-{
-    private static IServiceProvider? _sp;
-    private static ProxyType _proxyType;
+//public static class Proxy
+//{
+//    private static IServiceProvider? _sp;
+//    private static ProxyType _proxyType;
 
-    public static void Init(IServiceProvider sp, ProxyType proxyType)
-    {
-        _sp = sp;
-        _proxyType = proxyType;
-    }
+//    public static void Init(IServiceProvider sp, ProxyType proxyType)
+//    {
+//        _sp = sp;
+//        _proxyType = proxyType;
+//    }
 
-    public static T Create<T>(string app, string service) where T : class, IService
-    {
-        _ = _sp ?? throw new InvalidOperationException("ServiceProxy is not initalized.");
-        object proxy = ServiceProxy<T>.Create(_proxyType, _sp, app, service);
-        return (T)proxy;
-    }
-}
+//    public static T Create<T>(string app, string service) where T : class, IService
+//    {
+//        _ = _sp ?? throw new InvalidOperationException("Proxy is not initalized.");
+//        object proxy = ServiceProxy<T>.Create(_proxyType, _sp, app, service);
+//        return (T)proxy;
+//    }
+//}

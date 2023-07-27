@@ -11,10 +11,10 @@ namespace Test;
 
 public class Testing
 {
-    private readonly ServiceProxy sp;
+    private readonly Proxy sp;
     private readonly CurrentUser currentUser;
 
-    public Testing(ServiceProxy sp, CurrentUser currentUser)
+    public Testing(Proxy sp, CurrentUser currentUser)
     {
         this.sp = sp;
         this.currentUser = currentUser;
@@ -28,7 +28,7 @@ public class Testing
         }
 
 
-        var ress = await Proxy.Create<ServiceOne>("Server", "ServiceImpl").MethodOne(new MethodRequestOne { Text = "Hi there!" })
+        var ress = await sp.Create<ServiceOne>("Server", "ServiceImpl").MethodOne(new MethodRequestOne { Text = "Hi there!" })
             .Next((res) => sp.Create<ServiceTwo>("Server", "ServiceImpl").MethodTwo(new MethodRequestTwo { Text = res.Text + " Hello " }))
             .Next((res) => sp.Create<ServiceTwo>("Server", "ServiceImpl").MethodThree(new MethodRequestThree { Text = res.Text + " there! next" }))
             .OnError((error) =>

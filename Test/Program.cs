@@ -14,7 +14,7 @@ class Program
     static async Task Main(string[] args)
     {
         using IHost host = CreateHostBuilder(args).Build();
-        host.UseClientProxy(ProxyType.InProc);
+        //host.UseClientProxy(ProxyType.InProc);
 
         Console.WriteLine("Starting app");
         var t = host.Services.GetRequiredService<Testing>();

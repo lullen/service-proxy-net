@@ -17,7 +17,7 @@ public static class ProxyClientExtensions
             throw new ArgumentOutOfRangeException(nameof(proxyType));
         }
         services.AddScoped<CurrentUser>();
-        services.AddTransient(f => new ServiceProxy(f.GetRequiredService<IServiceProvider>(), proxyType));
+        services.AddTransient(f => new Proxy(f.GetRequiredService<IServiceProvider>(), proxyType));
 
         //if (proxyType == ProxyType.HTTP)
         //{
@@ -33,12 +33,6 @@ public static class ProxyClientExtensions
         //}
 
         return services;
-    }
-
-    public static IHost UseClientProxy(this IHost host, ProxyType proxyType)
-    {
-        Proxy.Init(host.Services, proxyType);
-        return host;
     }
 
     //public static IServiceCollection AddInProcProxyClient(this IServiceCollection services, params Type[] hostedServices)
