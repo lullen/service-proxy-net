@@ -1,6 +1,6 @@
 name: Build
 env:
-  PROJECT_FILE: Proxy/Proxy.csproj
+  PROJECT_FILE: Luizio.ServiceProxy/Luizio.ServiceProxy.csproj
 
 on:
   # workflow_dispatch:
