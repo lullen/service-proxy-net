@@ -9,12 +9,18 @@ namespace Luizio.ServiceProxy.Server;
 public class ServiceStore
 {
     private readonly ILogger<ServiceStore> _logger;
-    private static Dictionary<string, Type> _services = new Dictionary<string, Type>();
+    private static Dictionary<string, Type> _services = new();
     private static IEnumerable<Subscription> _subscriptions = new List<Subscription>();
 
     public ServiceStore(ILogger<ServiceStore> logger)
     {
         _logger = logger;
+    }
+
+    public static void Clear()
+    {
+        _services = new Dictionary<string, Type>();
+        _subscriptions = new List<Subscription>();
     }
 
     public static IService GetService(string service, IServiceProvider provider)

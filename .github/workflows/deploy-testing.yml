@@ -1,0 +1,40 @@
+name: Deploy
+
+env:
+  PROJECT_FILE: Luizio.ServiceProxy.Testing/Luizio.ServiceProxy.Testing.csproj
+
+on:
+  workflow_dispatch:
+  # push:
+  #   branches: ["main"]
+  # pull_request:
+  #   branches: ["main"]
+
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 7.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore ${{env.PROJECT_FILE}}
+
+      - name: Build
+        run: dotnet build -c Release --no-restore ${{env.PROJECT_FILE}}
+
+      - name: Pack
+        run: dotnet pack -c Release --no-build ${{env.PROJECT_FILE}}
+
+      - name: Push
+        run: dotnet nuget push --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json Luizio.ServiceProxy.Testing/**/*.nupkg
