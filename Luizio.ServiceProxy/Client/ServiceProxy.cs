@@ -40,6 +40,7 @@ public class ServiceProxy<T> : DispatchProxy where T : class, IService
 
         return method.Invoke(proxy, new[] { _app, _service, targetMethod.Name, args[0] });
     }
+
     private IServiceProxy GetServiceProxy(ProxyType proxyType, IServiceProvider sp)
     {
         var currentUser = sp.GetRequiredService<CurrentUser>();
@@ -51,7 +52,8 @@ public class ServiceProxy<T> : DispatchProxy where T : class, IService
             _ => throw new NotImplementedException()
         };
     }
-    private bool IsTaskOfResponse(Type type)
+    
+    private static bool IsTaskOfResponse(Type type)
     {
         if (type.GetGenericTypeDefinition() != typeof(Task<>))
         {
@@ -97,7 +99,7 @@ public class ServiceProxy
     }
 }
 
-public static class StaticServiceProxy
+public static class Proxy
 {
     private static IServiceProvider? _sp;
     private static ProxyType _proxyType;

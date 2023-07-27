@@ -59,20 +59,17 @@ public class HttpServiceProxy : IServiceProxy
 
             var text = await responseMessage.Content.ReadAsStringAsync();
             var response = JsonSerializer.Deserialize<TRes>(text, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            return new Response<TRes>(response);
+            return response;
         }
         catch (Exception e)
         {
             var error = new Error(ErrorCode.Exception, e.ToString());
-            //var genericType = typeof(Response<>).MakeGenericType(typeof(TRes));
-            var objectResponse = Activator.CreateInstance(typeof(Response<TRes>), new object[] { error });
-            return objectResponse as Response<TRes>;
+            return error;
         }
 
     }
 
-    private bool HasStreamAsProperty(Type type)
+    private static bool HasStreamAsProperty(Type type)
     {
         foreach (var property in type.GetProperties())
         {
@@ -84,7 +81,7 @@ public class HttpServiceProxy : IServiceProxy
         return false;
     }
 
-    private HttpRequestMessage CreateMultipartRequest<T>(string url, T data, Dictionary<string, StringValues> headers)
+    private static HttpRequestMessage CreateMultipartRequest<T>(string url, T data, Dictionary<string, StringValues> headers)
     {
         var stream = GetStreamFromProperty(data.GetType(), data);
 
@@ -101,14 +98,14 @@ public class HttpServiceProxy : IServiceProxy
         return request;
     }
 
-    private Stream GetStreamFromProperty(Type type, object value)
+    private static Stream GetStreamFromProperty(Type type, object value)
     {
         var property = type.GetProperties().SingleOrDefault(p => p.PropertyType == typeof(Stream));
         return (property!.GetValue(value) as Stream)!;
     }
 
 
-    private HttpRequestMessage CreateRequest<T>(string url, T data, Dictionary<string, StringValues> headers)
+    private static HttpRequestMessage CreateRequest<T>(string url, T data, Dictionary<string, StringValues> headers)
     {
         var request = new HttpRequestMessage(HttpMethod.Post, url)
         {

@@ -3,6 +3,8 @@ using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Luizio.ServiceProxy.Server;
+using System.Linq;
+using Microsoft.Extensions.Hosting;
 
 namespace Luizio.ServiceProxy.Client;
 
@@ -33,10 +35,10 @@ public static class ProxyClientExtensions
         return services;
     }
 
-    public static IApplicationBuilder UseClientProxy(this IApplicationBuilder builder, ProxyType proxyType)
+    public static IHost UseClientProxy(this IHost host, ProxyType proxyType)
     {
-        StaticServiceProxy.Init(builder.ApplicationServices, proxyType);
-        return builder;
+        Proxy.Init(host.Services, proxyType);
+        return host;
     }
 
     //public static IServiceCollection AddInProcProxyClient(this IServiceCollection services, params Type[] hostedServices)
@@ -47,7 +49,10 @@ public static class ProxyClientExtensions
     public static IServiceCollection AddService<T>(this IServiceCollection services) where T : class
     {
         ServiceStore.RegisterService(typeof(T));
-        services.AddTransient(typeof(T));
+        if (!services.Any(s => s.ServiceType == typeof(T)))
+        {
+            services.AddTransient(typeof(T));
+        }
         return services;
     }
 }

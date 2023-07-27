@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -11,13 +8,13 @@ namespace Luizio.ServiceProxy.Server;
 
 public class ServiceStore
 {
-    private readonly ILogger<ServiceStore> logger;
+    private readonly ILogger<ServiceStore> _logger;
     private static Dictionary<string, Type> _services = new Dictionary<string, Type>();
     private static IEnumerable<Subscription> _subscriptions = new List<Subscription>();
 
     public ServiceStore(ILogger<ServiceStore> logger)
     {
-        this.logger = logger;
+        _logger = logger;
     }
 
     public static IService GetService(string service, IServiceProvider provider)

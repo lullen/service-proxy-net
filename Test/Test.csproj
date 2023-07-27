@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Proxy\Proxy.csproj" />
+    <ProjectReference Include="..\Luizio.ServiceProxy\Luizio.ServiceProxy.csproj" />
     <ProjectReference Include="..\Server.Interfaces\Server.Interfaces.csproj" />
     <ProjectReference Include="..\Server\Server.csproj" />
   </ItemGroup>

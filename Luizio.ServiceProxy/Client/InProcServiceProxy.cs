@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Luizio.ServiceProxy.Models;
 using Luizio.ServiceProxy.Server;
+using Microsoft.Extensions.Logging;
 
 namespace Luizio.ServiceProxy.Client;
 
@@ -23,6 +24,8 @@ public class InProcServiceProxy : IServiceProxy
         where TRes : class, new()
     {
         using var scope = sp.CreateScope();
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<InProcServiceProxy>>();
+        logger.LogInformation("Calling {AppName}.{ServiceName}.{MethodName}", appName, serviceName, methodName);
         var newCurrentUser = scope.ServiceProvider.GetRequiredService<CurrentUser>();
         newCurrentUser.Metadata = currentUser.Metadata;
         newCurrentUser.Token = currentUser.Token;
@@ -33,11 +36,23 @@ public class InProcServiceProxy : IServiceProxy
         {
             var res = methodToInvoke.Invoke(serviceImpl, new[] { request });
             var task = res as Task<Response<TRes>>;
-            return await task!;
+            var response = await task!;
+
+            if (response.HasError)
+            {
+                logger.LogError("Method call to {AppName}.{ServiceName}.{MethodName} failed with error {ErrorCode} - {ErrorMessage}", appName, serviceName, methodName, response.Error.Code, response.Error.Description);
+            }
+            else
+            {
+                logger.LogInformation("Method call to {AppName}.{ServiceName}.{MethodName} failed was successful", appName, serviceName, methodName);
+            }
+
+            return response;
         }
         catch (System.Exception e)
         {
-            return new Response<TRes>(new Error(ErrorCode.Exception, e.ToString()));
+            logger.LogError("Method call to {AppName}.{ServiceName}.{MethodName} failed with error {ErrorMessage}", appName, serviceName, methodName, e.ToString());
+            return new Error(ErrorCode.Exception, e.ToString());
         }
     }
 }

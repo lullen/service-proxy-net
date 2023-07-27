@@ -13,6 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Proxy\Proxy.csproj" />
+    <ProjectReference Include="..\Luizio.ServiceProxy\Luizio.ServiceProxy.csproj" />
   </ItemGroup>
 </Project>
