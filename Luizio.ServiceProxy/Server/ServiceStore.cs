@@ -65,7 +65,6 @@ public class ServiceStore
 
     public static void RegisterSubscribers(string pubsub)
     {
-
         foreach (var item in _services)
         {
             var interfaces = item.Value.GetInterfaces();
@@ -77,13 +76,14 @@ public class ServiceStore
                     continue;
                 }
 
-                var declaringInterface = interfaces.Where(i => i.GetMethods().Any(m => m.Name == method.Name && m.GetParameters().All(p => method.GetParameters().Select(pm => pm.ParameterType).Contains(p.ParameterType)))).FirstOrDefault();
-                if (declaringInterface == null)
-                {
-                    throw new InvalidOperationException($"Can only subscribe to methods declared in interfaces. Method {method.Name} in {item.Value.Name} is not an implementation of an interface.");
-                }
-
-                if (method.GetParameters().Count() != 1)
+                var declaringInterface = interfaces
+                    .Where(i =>
+                        i.GetMethods().Any(m =>
+                            m.Name == method.Name &&
+                            m.GetParameters().All(p => method.GetParameters().Select(pm => pm.ParameterType).Contains(p.ParameterType))
+                        )
+                    ).FirstOrDefault() ?? throw new InvalidOperationException($"Can only subscribe to methods declared in interfaces. Method {method.Name} in {item.Value.Name} is not an implementation of an interface.");
+                if (method.GetParameters().Length != 1)
                 {
                     throw new InvalidOperationException("Can only subscribe to methods with one parameter.");
                 }
@@ -91,7 +91,6 @@ public class ServiceStore
                 var s = new Subscription
                 {
                     Service = item.Key,
-                    InterfaceType = declaringInterface,
                     Method = method,
                     Topic = method.GetParameters().First().ParameterType.FullName.ToString(),
                     DeadLetterQueue = subscriber.UseDeadLetterQueue ? $"{method.GetParameters().First().ParameterType.FullName}_dlq" : string.Empty,
