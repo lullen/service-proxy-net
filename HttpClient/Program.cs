@@ -3,6 +3,7 @@ using Luizio.ServiceProxy.Client;
 using Server.Interfaces;
 using System.IO;
 using System.Runtime.CompilerServices;
+using Luizio.ServiceProxy.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,7 +43,7 @@ app.MapGet("/", async (Proxy sp, CurrentUser user) =>
     //return;
     while (true)
     {
-        user.Metadata = new Dictionary<string, StringValues>
+        user.Metadata = new Dictionary<string, string>
         {
             { "test", "test" },
             { "Authorization", "Bearer 123" }

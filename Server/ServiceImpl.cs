@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Luizio.ServiceProxy.Client;
 using Luizio.ServiceProxy.Models;
 using Luizio.ServiceProxy.Server;
 using Server.Interfaces;

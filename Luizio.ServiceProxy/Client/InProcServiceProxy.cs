@@ -25,7 +25,7 @@ public class InProcServiceProxy : IServiceProxy
     {
         using var scope = sp.CreateScope();
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<InProcServiceProxy>>();
-        logger.LogInformation("Calling {AppName}.{ServiceName}.{MethodName}", appName, serviceName, methodName);
+        logger.LogInformation("Calling \"{AppName}.{ServiceName}.{MethodName}\".", appName, serviceName, methodName);
         var newCurrentUser = scope.ServiceProvider.GetRequiredService<CurrentUser>();
         newCurrentUser.Metadata = currentUser.Metadata;
         newCurrentUser.Token = currentUser.Token;
@@ -40,11 +40,11 @@ public class InProcServiceProxy : IServiceProxy
 
             if (response.HasError)
             {
-                logger.LogError("Method call to {AppName}.{ServiceName}.{MethodName} failed with error {ErrorCode} - {ErrorMessage}", appName, serviceName, methodName, response.Error.Code, response.Error.Description);
+                logger.LogError("Method call to \"{AppName}.{ServiceName}.{MethodName}\" failed with error {ErrorCode} - \"{ErrorMessage}\".", appName, serviceName, methodName, response.Error.Code, response.Error.Description);
             }
             else
             {
-                logger.LogInformation("Method call to {AppName}.{ServiceName}.{MethodName} failed was successful", appName, serviceName, methodName);
+                logger.LogInformation("Method call to \"{AppName}.{ServiceName}.{MethodName}\" failed.", appName, serviceName, methodName);
             }
 
             return response;

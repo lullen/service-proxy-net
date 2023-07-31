@@ -2,7 +2,7 @@
 using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
-using Luizio.ServiceProxy.Client;
+using Luizio.ServiceProxy.Models;
 
 namespace Luizio.ServiceProxy.Server;
 
@@ -10,7 +10,7 @@ public static class ProxyServerExtensions
 {
     //public static IServiceCollection AddDaprServer(this IServiceCollection services)
     //{
-    //    var hostedService = services.Where(s => s.ServiceType.IsAssignableFrom(typeof(IService))).Select(s => s.ServiceType).ToArray();
+    //    var hostedService = services.Where(s => s.InterfaceType.IsAssignableFrom(typeof(IService))).Select(s => s.InterfaceType).ToArray();
     //    ServiceStore.RegisterServices(hostedService);
     //    return services
     //        .AddTransient<DaprServer>();

@@ -1,9 +1,15 @@
 
+using System;
+using System.Linq;
+using System.Reflection;
+
 namespace Luizio.ServiceProxy.Server;
 
 public class Subscription
 {
-    public string Method { get; set; } = string.Empty;
+    public MethodInfo? Method { get; set; }
     public string Topic { get; set; } = string.Empty;
     public string PubSub { get; set; } = string.Empty;
+    public string? DeadLetterQueue { get; set; }
+    public string Service { get; set; } = string.Empty;
 }

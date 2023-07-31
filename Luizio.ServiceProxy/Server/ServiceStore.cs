@@ -11,7 +11,7 @@ public class ServiceStore
 {
     private readonly ILogger<ServiceStore> _logger;
     private static Dictionary<string, Type> _services = new();
-    private static IEnumerable<Subscription> _subscriptions = new List<Subscription>();
+    private static IList<Subscription> _subscriptions = new List<Subscription>();
 
     public ServiceStore(ILogger<ServiceStore> logger)
     {
@@ -47,7 +47,7 @@ public class ServiceStore
 
         if (invokeMethod == null)
         {
-            throw new Exception($"Method {methodName} with parameter {parameterType} not found.");
+            throw new Exception($"Method \"{invokeClass.GetType().Name}.{methodName}\" with parameter \"{parameterType}\" not found.");
         }
         return invokeMethod;
     }
@@ -68,18 +68,36 @@ public class ServiceStore
 
         foreach (var item in _services)
         {
+            var interfaces = item.Value.GetInterfaces();
             foreach (var method in item.Value.GetMethods())
             {
                 var subscriber = method.GetCustomAttribute<SubscriberAttribute>();
-                if (subscriber != null)
+                if (subscriber == null)
                 {
-                    var s = new Subscription
-                    {
-                        Method = item.Key + "." + method.Name,
-                        Topic = subscriber.Topic,
-                        PubSub = pubsub
-                    };
+                    continue;
                 }
+
+                var declaringInterface = interfaces.Where(i => i.GetMethods().Any(m => m.Name == method.Name && m.GetParameters().All(p => method.GetParameters().Select(pm => pm.ParameterType).Contains(p.ParameterType)))).FirstOrDefault();
+                if (declaringInterface == null)
+                {
+                    throw new InvalidOperationException($"Can only subscribe to methods declared in interfaces. Method {method.Name} in {item.Value.Name} is not an implementation of an interface.");
+                }
+
+                if (method.GetParameters().Count() != 1)
+                {
+                    throw new InvalidOperationException("Can only subscribe to methods with one parameter.");
+                }
+
+                var s = new Subscription
+                {
+                    Service = item.Key,
+                    InterfaceType = declaringInterface,
+                    Method = method,
+                    Topic = method.GetParameters().First().ParameterType.FullName.ToString(),
+                    DeadLetterQueue = subscriber.UseDeadLetterQueue ? $"{method.GetParameters().First().ParameterType.FullName}_dlq" : string.Empty,
+                    PubSub = pubsub
+                };
+                _subscriptions.Add(s);
             }
         }
         // _logger.info("Registered {} topics", _subscriptions.size());

@@ -3,6 +3,7 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using Luizio.ServiceProxy.Server;
 using System.Linq;
+using Luizio.ServiceProxy.Models;
 
 namespace Luizio.ServiceProxy.Client;
 

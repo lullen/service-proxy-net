@@ -4,10 +4,11 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Luizio.ServiceProxy.Models;
 using Luizio.ServiceProxy.Server;
+using System.Runtime.CompilerServices;
 
 namespace Luizio.ServiceProxy.Client;
 
-public class ServiceProxy<T> : DispatchProxy where T : class, IService
+public class ServiceProxy : DispatchProxy
 {
     private IServiceProvider? _sp;
     private string? _app;
@@ -52,7 +53,7 @@ public class ServiceProxy<T> : DispatchProxy where T : class, IService
             _ => throw new NotImplementedException()
         };
     }
-    
+
     private static bool IsTaskOfResponse(Type type)
     {
         if (type.GetGenericTypeDefinition() != typeof(Task<>))
@@ -68,16 +69,30 @@ public class ServiceProxy<T> : DispatchProxy where T : class, IService
         return true;
     }
 
-    public static T Create(ProxyType proxyType, IServiceProvider sp, string app, string service)
+    public static T Create<T>(ProxyType proxyType, IServiceProvider sp, string app, string service) where T : class, IService
     {
-        object proxy = Create<T, ServiceProxy<T>>();
-        var serviceProxy = (ServiceProxy<T>)proxy;
+
+        object proxy = Create<T, ServiceProxy>();
+        var serviceProxy = (ServiceProxy)proxy;
         serviceProxy._sp = sp;
         serviceProxy._app = app;
         serviceProxy._service = service;
         serviceProxy._proxyType = proxyType;
         return (T)proxy;
     }
+
+    //public static object Create(Type type, ProxyType proxyType, IServiceProvider sp, string app, string service)
+    //{
+    //    var baseMethod = typeof(CaptionBuilder)
+    //        .GetMethod(nameof(CaptionBuilder.ClassCaption))!;
+    //    object proxy = Create<T, ServiceProxy>();
+    //    var serviceProxy = (ServiceProxy)proxy;
+    //    serviceProxy._sp = sp;
+    //    serviceProxy._app = app;
+    //    serviceProxy._service = service;
+    //    serviceProxy._proxyType = proxyType;
+    //    return (T)proxy;
+    //}
 }
 
 public interface IProxy
@@ -98,8 +113,8 @@ public class Proxy : IProxy
 
     public T Create<T>(string app, string service) where T : class, IService
     {
-        object proxy = ServiceProxy<T>.Create(_proxyType, _sp, app, service);
-        return (T)proxy;
+        T proxy = ServiceProxy.Create<T>(_proxyType, _sp, app, service);
+        return proxy;
     }
 }
 

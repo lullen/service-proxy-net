@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
-using Luizio.ServiceProxy.Client;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Luizio.ServiceProxy.Models;
 
 namespace Luizio.ServiceProxy.Server;
 
@@ -85,7 +85,7 @@ public static class HttpServerExtentions
 
     private static void InitCurrentUser(CurrentUser currentUser, HttpContext context)
     {
-        currentUser.Metadata = context.User.Claims.Select(c => KeyValuePair.Create<string, StringValues>(c.Type, c.Value)).ToDictionary(c => c.Key, c => c.Value);
+        currentUser.Metadata = context.User.Claims.Select(c => KeyValuePair.Create<string, string>(c.Type, c.Value)).ToDictionary(c => c.Key, c => c.Value);
         if (context.Request.Headers.TryGetValue("Authorization", out var token))
         {
             currentUser.Token = token.ToString();
