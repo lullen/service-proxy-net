@@ -44,7 +44,10 @@ public static class ProxyClientExtensions
         ServiceStore.RegisterService(typeof(T));
         if (!services.Any(s => s.ServiceType == typeof(T)))
         {
-            services.AddTransient(typeof(T));
+            foreach (var intf in typeof(T).GetInterfaces())
+            {
+                services.AddTransient(intf, typeof(T));
+            }
         }
         return services;
     }
