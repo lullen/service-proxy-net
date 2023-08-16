@@ -3,10 +3,10 @@ using System.Text.Json.Serialization;
 
 namespace Luizio.ServiceProxy.Models;
 
-public class Response<T> where T : class, new()
+public class Response<T> where T : class
 {
     public Error Error { get; set; } = Error.Empty;
-    public T Result { get; set; } = new T();
+    public T? Result { get; set; }
 
     public Response(T response)
     {
