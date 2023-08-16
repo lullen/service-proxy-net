@@ -5,12 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Reflection.PortableExecutable;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
 using Luizio.ServiceProxy.Models;
 
 namespace Luizio.ServiceProxy.Client;
@@ -31,7 +29,7 @@ public class HttpServiceProxy : IServiceProxy
 
     public async Task<Response<TRes>> Invoke<T, TRes>(string appName, string serviceName, string methodName, T requestData)
         where T : class, new()
-        where TRes : class, new()
+        where TRes : class
     {
         using var scope = sp.CreateScope();
         try
