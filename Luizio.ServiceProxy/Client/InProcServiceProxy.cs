@@ -44,14 +44,14 @@ public class InProcServiceProxy : IServiceProxy
             }
             else
             {
-                logger.LogInformation("Method call to \"{AppName}.{ServiceName}.{MethodName}\" failed.", appName, serviceName, methodName);
+                logger.LogInformation("Method call to \"{AppName}.{ServiceName}.{MethodName}\" succeeded.", appName, serviceName, methodName);
             }
 
             return response;
         }
         catch (System.Exception e)
         {
-            logger.LogError("Method call to {AppName}.{ServiceName}.{MethodName} failed with error {ErrorMessage}", appName, serviceName, methodName, e.ToString());
+            logger.LogError("Method call to {AppName}.{ServiceName}.{MethodName} failed with error {ErrorCode} - {ErrorMessage}.", appName, serviceName, methodName, ErrorCode.Exception, e.ToString());
             return new Error(ErrorCode.Exception, e.ToString());
         }
     }
