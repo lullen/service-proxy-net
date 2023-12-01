@@ -16,7 +16,7 @@
 		Include="Dapr.Client" Version="1.11.0" />-->
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
-		<PackageReference Include="RabbitMQ.Client" Version="6.6.0" />
+		<PackageReference Include="RabbitMQ.Client" Version="6.7.0" />
 	</ItemGroup>
 
 	<ItemGroup>
