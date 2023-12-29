@@ -8,7 +8,18 @@ namespace Luizio.ServiceProxy.Models;
 public class CurrentUser
 {
     private const string AuthenticationHeader = "Authentication";
-    public Guid Id { get; set; } = Guid.NewGuid();
+    private const string SubjectClaim = "sub";
+    public Guid Id
+    {
+        get
+        {
+            if (Metadata.TryGetValue(SubjectClaim, out var id) && Guid.TryParse(id, out var userId))
+            {
+                return userId;
+            }
+            return Guid.Empty;
+        }
+    }
     public Dictionary<string, string> Metadata { get; set; } = new();
     public string Token
     {
