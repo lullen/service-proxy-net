@@ -23,7 +23,7 @@ public class CurrentUser
         {
             if (Metadata.ContainsKey(SubjectClaim))
             {
-                Metadata[AuthenticationHeader] = value.ToString();
+                Metadata[SubjectClaim] = value.ToString();
             }
             else
             {
