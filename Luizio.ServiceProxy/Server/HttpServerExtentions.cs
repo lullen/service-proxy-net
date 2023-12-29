@@ -50,8 +50,6 @@ public static class HttpServerExtentions
                     return;
                 }
 
-                InitCurrentUser(serviceProvider.GetRequiredService<CurrentUser>(), context);
-
                 var service = serviceProvider.GetRequiredService<T>();
 
                 var task = (Task)method.Invoke(service, new[] { parameter });
@@ -81,14 +79,5 @@ public static class HttpServerExtentions
     private static async Task<object?> ReadFromJson(HttpContext context, Type parameterType)
     {
         return await context.Request.ReadFromJsonAsync(parameterType);
-    }
-
-    private static void InitCurrentUser(CurrentUser currentUser, HttpContext context)
-    {
-        currentUser.Metadata = context.User.Claims.Select(c => KeyValuePair.Create<string, string>(c.Type, c.Value)).ToDictionary(c => c.Key, c => c.Value);
-        if (context.Request.Headers.TryGetValue("Authorization", out var token))
-        {
-            currentUser.Token = token.ToString();
-        }
     }
 }

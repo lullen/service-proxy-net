@@ -18,27 +18,9 @@ public static class ProxyClientExtensions
         services.AddScoped<CurrentUser>();
         services.AddTransient<IProxy, Proxy>(f => new Proxy(f.GetRequiredService<IServiceProvider>(), proxyType));
 
-        //if (proxyType == ProxyType.HTTP)
-        //{
-        //    services.AddTransient<IServiceProxy, HttpServiceProxy>();
-        //}
-        //else if (proxyType == ProxyType.InProc)
-        //{
-        //    services.AddTransient<IServiceProxy, InProcServiceProxy>();
-        //}
-        //else
-        //{
-        //    throw new ArgumentOutOfRangeException(nameof(proxyType));
-        //}
-
         return services;
     }
 
-    //public static IServiceCollection AddInProcProxyClient(this IServiceCollection services, params Type[] hostedServices)
-    //{
-    //    ServiceStore.RegisterServices(hostedServices);
-    //    return services;
-    //}
     public static IServiceCollection AddService<T>(this IServiceCollection services) where T : class
     {
         ServiceStore.RegisterService(typeof(T));
