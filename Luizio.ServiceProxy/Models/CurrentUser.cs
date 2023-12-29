@@ -19,6 +19,17 @@ public class CurrentUser
             }
             return Guid.Empty;
         }
+        set
+        {
+            if (Metadata.ContainsKey(SubjectClaim))
+            {
+                Metadata[AuthenticationHeader] = value.ToString();
+            }
+            else
+            {
+                Metadata.Add(SubjectClaim, value.ToString());
+            }
+        }
     }
     public Dictionary<string, string> Metadata { get; set; } = new();
     public string Token
