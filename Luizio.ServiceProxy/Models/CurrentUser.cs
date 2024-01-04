@@ -13,7 +13,7 @@ public class CurrentUser
     {
         get
         {
-            if (Metadata.TryGetValue(SubjectClaim, out var id) && Guid.TryParse(id, out var userId))
+            if (Metadata.Any(m => m.Key == SubjectClaim) && Guid.TryParse(Metadata.Single(m => m.Key == SubjectClaim).Value, out var userId))
             {
                 return userId;
             }
@@ -21,34 +21,29 @@ public class CurrentUser
         }
         set
         {
-            if (Metadata.ContainsKey(SubjectClaim))
+            if (Metadata.Any(m => m.Key == SubjectClaim))
             {
-                Metadata[SubjectClaim] = value.ToString();
+                var token = Metadata.SingleOrDefault(m => m.Key == SubjectClaim);
+                Metadata.Remove(token);
             }
-            else
-            {
-                Metadata.Add(SubjectClaim, value.ToString());
-            }
+            Metadata.Add(new(SubjectClaim, value.ToString()));
         }
     }
-    public Dictionary<string, string> Metadata { get; set; } = new();
+    public List<KeyValuePair<string, string>> Metadata { get; set; } = new();
     public string Token
     {
         get
         {
-            Metadata.TryGetValue(AuthenticationHeader, out var token);
-            return token != null ? token : string.Empty;
+            return Metadata.SingleOrDefault(y => y.Key == AuthenticationHeader).Value ?? string.Empty;
         }
         set
         {
-            if (Metadata.ContainsKey(AuthenticationHeader))
+            if (Metadata.Any(m => m.Key == AuthenticationHeader))
             {
-                Metadata[AuthenticationHeader] = value;
+                var token = Metadata.SingleOrDefault(m => m.Key == AuthenticationHeader);
+                Metadata.Remove(token);
             }
-            else
-            {
-                Metadata.Add(AuthenticationHeader, value);
-            }
+            Metadata.Add(new(AuthenticationHeader, value));
         }
     }
     //public CurrentUser(Dictionary<string, object> metadata)
