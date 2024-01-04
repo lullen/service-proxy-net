@@ -79,7 +79,7 @@ public class HttpServiceProxy : IServiceProxy
         return false;
     }
 
-    private static HttpRequestMessage CreateMultipartRequest<T>(string url, T data, Dictionary<string, string> headers)
+    private static HttpRequestMessage CreateMultipartRequest<T>(string url, T data, List<KeyValuePair<string, string>> headers)
     {
         var stream = GetStreamFromProperty(data.GetType(), data);
 
@@ -103,7 +103,7 @@ public class HttpServiceProxy : IServiceProxy
     }
 
 
-    private static HttpRequestMessage CreateRequest<T>(string url, T data, Dictionary<string, string> headers)
+    private static HttpRequestMessage CreateRequest<T>(string url, T data, List<KeyValuePair<string, string>> headers)
     {
         var request = new HttpRequestMessage(HttpMethod.Post, url)
         {

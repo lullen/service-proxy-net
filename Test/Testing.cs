@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Luizio.ServiceProxy.Client;
@@ -23,8 +24,8 @@ public class Testing
     {
         if (!currentUser.Metadata.Any())
         {
-            currentUser.Metadata.Add("Test", "Testing");
-            currentUser.Metadata.Add("Authorization", "Bearer sdgsdf3245236");
+            currentUser.Metadata.Add(KeyValuePair.Create("Test", "Testing"));
+            currentUser.Metadata.Add(KeyValuePair.Create("Authorization", "Bearer sdgsdf3245236"));
         }
 
 

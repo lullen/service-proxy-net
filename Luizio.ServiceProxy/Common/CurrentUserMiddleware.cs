@@ -19,7 +19,7 @@ internal class CurrentUserMiddleware(RequestDelegate next)
 
     private static void InitCurrentUser(CurrentUser currentUser, HttpContext context)
     {
-        currentUser.Metadata = context.User.Claims.Select(c => KeyValuePair.Create<string, string>(c.Type, c.Value)).ToDictionary(c => c.Key, c => c.Value);
+        currentUser.Metadata = context.User.Claims.Select(c => new KeyValuePair<string,string>(c.Type, c.Value)).ToList();
         if (context.Request.Headers.TryGetValue("Authorization", out var token))
         {
             currentUser.Token = token.ToString();

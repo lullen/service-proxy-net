@@ -9,6 +9,7 @@ using Microsoft.Extensions.Primitives;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -84,7 +85,9 @@ public class RabbitMqSubscriber : IHostedService
                         var currentUser = scope.ServiceProvider.GetRequiredService<CurrentUser>();
                         if (ea.BasicProperties.Headers != null)
                         {
-                            currentUser.Metadata = ea.BasicProperties.Headers.ToDictionary(h => h.Key, h => h.Value.ToString());
+                            currentUser.Metadata = ea.BasicProperties.Headers
+                                .Where(h => h.Value?.ToString() is not null)
+                                .Select(h => new KeyValuePair<string, string>(h.Key, h.Value.ToString()!)).ToList();
                         }
 
                         var service = ServiceStore.GetService(subscription.Service, scope.ServiceProvider);

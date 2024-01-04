@@ -43,11 +43,11 @@ app.MapGet("/", async (Proxy sp, CurrentUser user) =>
     //return;
     while (true)
     {
-        user.Metadata = new Dictionary<string, string>
-        {
-            { "test", "test" },
-            { "Authorization", "Bearer 123" }
-        };
+        user.Metadata =
+        [
+            new( "test", "test"),
+            new( "Authorization", "Bearer 123")
+        ];
         var res1 = await sp.Create<ServiceOne>("HttpServer", "ServiceImpl").MethodOne(new MethodRequestOne { Text = "Hi from Method one!" });
         var res2 = await sp.Create<ServiceTwo>("HttpServer", "ServiceImpl").MethodTwo(new MethodRequestTwo { Text = res1.Result.Text + " Hi from Method two!" });
         var res3 = await sp.Create<ServiceTwo>("HttpServer", "ServiceImpl").MethodThree(new MethodRequestThree { Text = res2.Result.Text + " Hi from Method three!" });

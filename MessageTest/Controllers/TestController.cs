@@ -26,7 +26,7 @@ public class TestController : ControllerBase
     [HttpGet(Name = "GetWeatherForecast")]
     public IEnumerable<WeatherForecast> Get()
     {
-        currentUser.Metadata.Add("Test", "Test value");
+        currentUser.Metadata.Add(KeyValuePair.Create("Test", "Test value"));
         eventPublisher.Publish(new MessageEvent { Id = Guid.NewGuid() }, currentUser);
 
         return Enumerable.Range(1, 5).Select(index => new WeatherForecast
