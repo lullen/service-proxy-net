@@ -98,6 +98,7 @@ public class ServiceProxy : DispatchProxy
 public interface IProxy
 {
     T Create<T>(string app, string service) where T : class, IService;
+    T Create<T>(string app, string service, ProxyType proxyType) where T : class, IService;
 }
 
 public class Proxy : IProxy
