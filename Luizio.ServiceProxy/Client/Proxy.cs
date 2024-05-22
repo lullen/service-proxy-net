@@ -116,6 +116,12 @@ public class Proxy : IProxy
         T proxy = ServiceProxy.Create<T>(_proxyType, _sp, app, service);
         return proxy;
     }
+
+    public T Create<T>(string app, string service, ProxyType proxyType) where T : class, IService
+    {
+        T proxy = ServiceProxy.Create<T>(proxyType, _sp, app, service);
+        return proxy;
+    }
 }
 
 //public static class Proxy
