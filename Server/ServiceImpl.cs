@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Luizio.ServiceProxy.Models;
 using Luizio.ServiceProxy.Server;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using Server.Interfaces;
 
@@ -44,7 +45,9 @@ public class ServiceImpl : ServiceOne, ServiceTwo, IService
 		return Task.FromResult(response);
 	}
 
-	public Task<Response<MethodResponseThree>> MethodThree(MethodRequestThree request)
+
+    [Authorize]
+    public Task<Response<MethodResponseThree>> MethodThree(MethodRequestThree request)
 	{
 		Response<MethodResponseThree> response;
 		if (request.Text.Contains("next"))

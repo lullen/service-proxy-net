@@ -10,6 +10,8 @@ using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Luizio.ServiceProxy.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Luizio.ServiceProxy.Server;
 
@@ -23,7 +25,7 @@ public static class HttpServerExtentions
 
         foreach (var method in methods)
         {
-            app.MapPost($"{type.Name}/{method.Name}", async (HttpContext context, IServiceProvider serviceProvider) =>
+            var route = app.MapPost($"{type.Name}/{method.Name}", async (HttpContext context, [FromServices] IServiceProvider serviceProvider) =>
             {
                 var params1 = method.GetParameters();
                 var firstParam = params1.First();
@@ -61,6 +63,11 @@ public static class HttpServerExtentions
                 var responseType = method.ReturnType.GetGenericArguments()[0].GetGenericArguments()[0];
                 await context.Response.WriteAsJsonAsync(res, responseType);
             });
+
+            if (method.CustomAttributes.Any(a => a.AttributeType == typeof(AuthorizeAttribute)))
+            {
+                route.RequireAuthorization();
+            }
         }
         return app;
     }

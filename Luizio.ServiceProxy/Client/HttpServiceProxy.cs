@@ -36,7 +36,7 @@ public class HttpServiceProxy : IServiceProxy
         {
             if (!serviceSettings.Services.TryGetValue(appName, out var baseUrl))
             {
-                throw new InvalidOperationException($"Application {appName} is not configured.");
+                throw new InvalidOperationException($"Application url for {appName} is not configured.");
             }
             var httpClient = scope.ServiceProvider.GetRequiredService<HttpClient>();
 

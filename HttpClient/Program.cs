@@ -4,6 +4,7 @@ using Server.Interfaces;
 using System.IO;
 using System.Runtime.CompilerServices;
 using Luizio.ServiceProxy.Models;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,7 @@ builder.Services.AddMvc();
 builder.Services.AddProxyClient(proxyType);
 builder.Services.Configure<ServiceSettings>(builder.Configuration);
 builder.Services.AddHttpClient();
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 //app.UseClientProxy(proxyType);
@@ -31,7 +33,7 @@ app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapGet("/", async (Proxy sp, CurrentUser user) =>
+app.MapGet("/", async ([FromServices] IProxy sp, [FromServices] CurrentUser user) =>
 {
     //var streamFile = System.IO.File.OpenRead("test.txt");
     //var resFile = await StaticServiceProxy.Create<ServiceOne>("HttpServer", "ServiceImpl").UploadFile(new FileTestRequest
