@@ -18,7 +18,7 @@ public class HttpServiceProxy : IServiceProxy
     private readonly ServiceSettings serviceSettings;
     private readonly IServiceProvider sp;
     private readonly CurrentUser currentUser;
-
+    private static readonly HttpClient http = new HttpClient(new HttpClientHandler() { ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; } });
     public HttpServiceProxy(IServiceProvider sp, CurrentUser currentUser)
     {
         this.sp = sp;
@@ -38,7 +38,7 @@ public class HttpServiceProxy : IServiceProxy
             {
                 throw new InvalidOperationException($"Application url for {appName} is not configured.");
             }
-            var httpClient = scope.ServiceProvider.GetRequiredService<HttpClient>();
+
             baseUrl = baseUrl.TrimEnd('/');
             var url = $"{baseUrl}/{serviceName}/{methodName}";
 
@@ -52,7 +52,7 @@ public class HttpServiceProxy : IServiceProxy
             {
                 requestMessage = CreateRequest(url, requestData, currentUser.Metadata);
             }
-            var responseMessage = await httpClient.SendAsync(requestMessage);
+            var responseMessage = await http.SendAsync(requestMessage);
             responseMessage.EnsureSuccessStatusCode();
 
             var text = await responseMessage.Content.ReadAsStringAsync();
