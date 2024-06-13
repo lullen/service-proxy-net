@@ -64,7 +64,7 @@ public static class HttpServerExtentions
                 await context.Response.WriteAsJsonAsync(res, responseType);
             });
 
-            if (method.CustomAttributes.Any(a => a.AttributeType == typeof(AuthorizeAttribute)))
+            if (method.CustomAttributes.Any(a => a.AttributeType == typeof(AuthorizeAttribute)) || method.DeclaringType?.CustomAttributes.Any(a => a.AttributeType == typeof(AuthorizeAttribute)) == true)
             {
                 route.RequireAuthorization();
             }

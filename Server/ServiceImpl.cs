@@ -8,6 +8,7 @@ using Server.Interfaces;
 
 namespace Server;
 
+[Authorize]
 public class ServiceImpl : ServiceOne, ServiceTwo, IService
 {
 	private readonly CurrentUser currentUser;
@@ -46,7 +47,6 @@ public class ServiceImpl : ServiceOne, ServiceTwo, IService
 	}
 
 
-    [Authorize]
     public Task<Response<MethodResponseThree>> MethodThree(MethodRequestThree request)
 	{
 		Response<MethodResponseThree> response;

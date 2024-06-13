@@ -33,7 +33,10 @@ public class Program
 
 
         app.MapControllers();
-
+        app.MapGet("/", () =>
+        {
+            return "hello world";
+        });
         app.Run();
     }
 }
