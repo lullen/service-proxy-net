@@ -39,7 +39,7 @@ public class HttpServiceProxy : IServiceProxy
                 throw new InvalidOperationException($"Application url for {appName} is not configured.");
             }
             var httpClient = scope.ServiceProvider.GetRequiredService<HttpClient>();
-
+            baseUrl = baseUrl.TrimEnd('/');
             var url = $"{baseUrl}/{serviceName}/{methodName}";
 
             HttpRequestMessage requestMessage;
