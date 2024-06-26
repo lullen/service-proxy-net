@@ -19,7 +19,7 @@ public class ServiceImpl : ServiceOne, ServiceTwo, IService
 		this.currentUser = currentUser;
 		this.logger = logger;
 	}
-	public async Task<Response<MethodResponseOne>> MethodOne(MethodRequestOne request)
+	public async Task<Response<Empty>> MethodOne(MethodRequestOne request)
 	{
 		if (request.Text.Contains("next"))
 		{
@@ -28,7 +28,7 @@ public class ServiceImpl : ServiceOne, ServiceTwo, IService
 		await Task.CompletedTask;
 
 		logger.LogInformation("Method one called with request: " + request.Text + ". " + currentUser.Token);
-		return new MethodResponseOne { Text = request.Text };
+		return new Empty(); // { Text = request.Text };
 	}
 
 	public Task<Response<MethodResponseTwo>> MethodTwo(MethodRequestTwo request)

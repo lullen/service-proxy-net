@@ -22,7 +22,7 @@ public class InProcServiceProxy : IServiceProxy
 
 	public async Task<Response<TRes>> Invoke<T, TRes>(string appName, string serviceName, string methodName, T request)
 		where T : class, new()
-		where TRes : class
+		where TRes : class, new()
 	{
 		using var scope = sp.CreateScope();
 		var logger = scope.ServiceProvider.GetRequiredService<ILogger<InProcServiceProxy>>();

@@ -29,7 +29,7 @@ public class Testing
 
 
 		var ress = await sp.Create<ServiceOne>("Server", "ServiceImpl").MethodOne(new MethodRequestOne { Text = "Hi there!" })
-			.Next((res) => sp.Create<ServiceTwo>("Server", "ServiceImpl").MethodTwo(new MethodRequestTwo { Text = res.Text + " Hello " }))
+			.Next((res) => sp.Create<ServiceTwo>("Server", "ServiceImpl").MethodTwo(new MethodRequestTwo { Text = "Hello " }))
 			// Create failure request
 			.Next((res) => sp.Create<ServiceTwo>("Server", "ServiceImpl").MethodThree(new MethodRequestThree { Text = res.Text + " there! next" }))
 			.OnError((error) =>

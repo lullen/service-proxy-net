@@ -66,7 +66,7 @@ public static class HttpServerExtentions
 
             if (method.CustomAttributes.Any(a => a.AttributeType == typeof(AuthorizeAttribute)) || method.DeclaringType?.CustomAttributes.Any(a => a.AttributeType == typeof(AuthorizeAttribute)) == true)
             {
-                route.RequireAuthorization();
+                //route.RequireAuthorization();
             }
         }
         return app;
