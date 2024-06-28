@@ -29,7 +29,7 @@ public class HttpServiceProxy : IServiceProxy
 
     public async Task<Response<TRes>> Invoke<T, TRes>(string appName, string serviceName, string methodName, T requestData)
         where T : class, new()
-        where TRes : class, new()
+        where TRes : class
     {
         using var scope = sp.CreateScope();
         try
@@ -57,9 +57,9 @@ public class HttpServiceProxy : IServiceProxy
 
             var text = await responseMessage.Content.ReadAsStringAsync();
             var response = JsonSerializer.Deserialize<TRes>(text, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            if(response == null)
+            if (response == null && !typeof(TRes).IsAbstract)
             {
-                return new TRes();
+                return typeof(TRes).GetConstructor(Type.EmptyTypes).Invoke(null) as TRes;
             }
             return response;
         }
