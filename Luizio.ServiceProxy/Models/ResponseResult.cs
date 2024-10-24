@@ -1,17 +1,21 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
 namespace Luizio.ServiceProxy.Models;
-public class ResponseResult<T, T2> : ObjectResult where T : Response<T2> where T2 : class
+public class ResponseResult<T> : ObjectResult where T : class
 {
 
-    public ResponseResult(Response<T2> value) : base(value.Result)
+    public ResponseResult(Response<T> value) : base(value.Result)
     {
         StatusCode = ToHttpStatusCode(value.Error);
         if (value.HasError)
         {
             Value = value.Error.Description;
         }
+    }
 
+    public ResponseResult(Error value) : base(value)
+    {
+        StatusCode = ToHttpStatusCode(value);
     }
 
     private static int ToHttpStatusCode(Error error)
