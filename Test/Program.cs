@@ -25,8 +25,6 @@ class Program
 	static WebApplicationBuilder CreateHostBuilder(string[] args)
 	{
 		var builder = WebApplication.CreateBuilder(args);
-		builder.AddServiceDefaults();
-		builder.ConfigureOpenTelemetry();
 		builder.Services.AddProxyClient(ProxyType.InProc)
 						.AddService<ServiceImpl>()
 						//.AddTransient<ServiceOne, ServiceImpl>()
