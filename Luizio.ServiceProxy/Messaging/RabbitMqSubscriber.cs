@@ -25,18 +25,11 @@ public class RabbitMqSubscriber : IHostedService
     private readonly IConnection connection;
     private readonly string appName = "localhost";
 
-    public RabbitMqSubscriber(IServiceProvider serviceProvider, IProxy proxy, ILogger<RabbitMqSubscriber> logger)
+    public RabbitMqSubscriber(IServiceProvider serviceProvider, IProxy proxy, RabbitMQ.Client.IConnectionFactory connectionFactory, ILogger<RabbitMqSubscriber> logger)
     {
         this.serviceProvider = serviceProvider;
         this.proxy = proxy;
         this.logger = logger;
-        var connectionFactory = new ConnectionFactory
-        {
-            HostName = "localhost",
-            AutomaticRecoveryEnabled = true,
-            DispatchConsumersAsync = true,
-            NetworkRecoveryInterval = TimeSpan.FromSeconds(3)
-        };
         connection = connectionFactory.CreateConnection();
     }
 

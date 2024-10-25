@@ -10,16 +10,11 @@ public class RabbitMqPublisher : IEventPublisher
 {
     private readonly IConnection connection;
 
-    public RabbitMqPublisher()
+    public RabbitMqPublisher(IConnectionFactory connectionFactory)
     {
-        var connectionFactory = new ConnectionFactory
-        {
-            HostName = "localhost",
-            AutomaticRecoveryEnabled = true,
-            NetworkRecoveryInterval = TimeSpan.FromSeconds(3)
-        };
         connection = connectionFactory.CreateConnection();
     }
+
     public Response<Empty> Publish<T>(T message, CurrentUser currentUser) where T : class, new()
     {
         return Publish(message, string.Empty, currentUser);

@@ -18,7 +18,7 @@ public class Program
         builder.Services.AddSwaggerGen();
         builder.Services.AddProxyClient(ProxyType.InProc)
             .AddService<MessageSubscriber>()
-            .AddMessaging(MessagingType.RabbitMQ);
+            .AddMessaging(new MessagingSettings { MessagingType = MessagingType.RabbitMQ, Host = "localhost" });
 
         var app = builder.Build();
 
