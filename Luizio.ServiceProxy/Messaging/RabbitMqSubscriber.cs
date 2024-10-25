@@ -23,7 +23,6 @@ public class RabbitMqSubscriber : IHostedService
     private readonly IProxy proxy;
     private readonly ILogger<RabbitMqSubscriber> logger;
     private readonly IConnection connection;
-    private readonly string appName = "localhost";
 
     public RabbitMqSubscriber(IServiceProvider serviceProvider, IProxy proxy, RabbitMQ.Client.IConnectionFactory connectionFactory, ILogger<RabbitMqSubscriber> logger)
     {
@@ -50,6 +49,7 @@ public class RabbitMqSubscriber : IHostedService
         var subscriptions = ServiceStore.GetSubscriptions();
         foreach (var subscription in subscriptions)
         {
+            logger.LogInformation($"Subscribing to {subscription.Topic}_{subscription.Service}_{subscription.Method.Name.ToLower()}");
             var channel = connection.CreateModel();
             channel.ExchangeDeclare(exchange: subscription.Topic, durable: true, type: ExchangeType.Fanout);
 
@@ -57,9 +57,9 @@ public class RabbitMqSubscriber : IHostedService
             channel.QueueDeclare(queueName, true, false, false, null);
             channel.QueueBind(queueName, subscription.Topic, string.Empty);
 
-            var consumer = new AsyncEventingBasicConsumer(channel);
+            var consumer = new EventingBasicConsumer(channel);
 
-            consumer.Received += async (model, ea) =>
+            consumer.Received += (model, ea) =>
             {
                 var body = ea.Body.ToArray();
                 if (subscription.Method is null)
