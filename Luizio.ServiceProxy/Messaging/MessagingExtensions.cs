@@ -28,7 +28,7 @@ public static class MessagingExtensions
             AutomaticRecoveryEnabled = true,
             NetworkRecoveryInterval = TimeSpan.FromSeconds(3)
         };
-        services.AddSingleton(connectionFactory);
+        services.AddSingleton<IConnectionFactory>(connectionFactory);
 
         return services;
     }
