@@ -23,6 +23,8 @@ public static class MessagingExtensions
         var connectionFactory = new ConnectionFactory
         {
             HostName = settings.Host,
+            UserName = settings.Username,
+            Password = settings.Password,
             AutomaticRecoveryEnabled = true,
             NetworkRecoveryInterval = TimeSpan.FromSeconds(3)
         };

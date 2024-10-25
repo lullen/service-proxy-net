@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 namespace Luizio.ServiceProxy.Messaging;
 public class MessagingSettings
 {
-    public string Host { get; set; } = string.Empty;
     public MessagingType MessagingType { get; set; }
+    public string Host { get; set; } = string.Empty;
+    public string Username { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
 }
