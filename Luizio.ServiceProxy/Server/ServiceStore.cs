@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Luizio.ServiceProxy.Server;
 
-public class ServiceStore
+internal class ServiceStore
 {
     private readonly ILogger<ServiceStore> _logger;
     private static Dictionary<string, Type> _services = new();
@@ -18,20 +18,20 @@ public class ServiceStore
         _logger = logger;
     }
 
-    public static void Clear()
+    internal static void Clear()
     {
         _services = new Dictionary<string, Type>();
         _subscriptions = new List<Subscription>();
     }
 
-    public static IService GetService(string service, IServiceProvider provider)
+    internal static IService GetService(string service, IServiceProvider provider)
     {
         var invokeClass = _services[service.ToLowerInvariant()];
         return (IService)provider.GetRequiredService(invokeClass);
 
     }
 
-    public static MethodInfo GetMethod(string methodName, Type parameterType, IService invokeClass)
+    internal static MethodInfo GetMethod(string methodName, Type parameterType, IService invokeClass)
     {
         MethodInfo? invokeMethod = null;
         methodName = methodName.ToLower();
@@ -52,18 +52,18 @@ public class ServiceStore
         return invokeMethod;
     }
 
-    public static void RegisterService(Type service)
+    internal static void RegisterService(Type service)
     {
         _services.Add(service.Name.ToLower(), service);
         //logger.info("Registered {} as a service.", service.Name);
     }
 
-    public static IEnumerable<Subscription> GetSubscriptions()
+    internal static IEnumerable<Subscription> GetSubscriptions()
     {
         return _subscriptions;
     }
 
-    public static void RegisterSubscribers(string pubsub)
+    internal static void RegisterSubscribers(string pubsub)
     {
         foreach (var item in _services)
         {
