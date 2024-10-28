@@ -1,16 +1,13 @@
 ﻿using Luizio.ServiceProxy.Client;
 using Luizio.ServiceProxy.Models;
 using Luizio.ServiceProxy.Server;
-using Microsoft.AspNetCore.Connections;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -23,6 +20,7 @@ public class RabbitMqSubscriber : IHostedService
     private readonly IProxy proxy;
     private readonly ILogger<RabbitMqSubscriber> logger;
     private readonly IConnection connection;
+    private const string XRetryCount = "x-retry-count";
 
     public RabbitMqSubscriber(IServiceProvider serviceProvider, IProxy proxy, RabbitMQ.Client.IConnectionFactory connectionFactory, ILogger<RabbitMqSubscriber> logger)
     {
@@ -106,9 +104,33 @@ public class RabbitMqSubscriber : IHostedService
                     }
                     else
                     {
+
                         var shouldRequeue = error.Code == ErrorCode.Exception;
-                        channel.BasicNack(ea.DeliveryTag, false, shouldRequeue);
-                        logger.LogError("Failed to process event on topic {Topic}.", ea.Exchange);
+
+                        var retryCount = 0;
+                        if (ea.BasicProperties.Headers == null)
+                        {
+                            ea.BasicProperties.Headers = new Dictionary<string, object>
+                            {
+                                {XRetryCount, retryCount }
+                            };
+                        }
+
+                        if (ea.BasicProperties.Headers.TryGetValue(XRetryCount, out var xretryCount))
+                        {
+                            retryCount = (int)xretryCount;
+                        }
+                        retryCount++;
+                        ea.BasicProperties.Headers[XRetryCount] = retryCount;
+
+                        shouldRequeue = shouldRequeue && retryCount <= subscription.RetryCount;
+
+                        if (shouldRequeue)
+                        {
+                            channel.BasicPublish(ea.Exchange, ea.RoutingKey, ea.BasicProperties, ea.Body);
+                        }
+                        channel.BasicNack(ea.DeliveryTag, false, false);
+                        logger.LogError("Failed to process event on topic {Topic}. Retrying {Retrying}, retry count {RetryCount}", ea.Exchange, shouldRequeue, retryCount);
                     }
                 }
                 else

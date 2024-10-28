@@ -11,9 +11,12 @@ public class MessageSubscriber : IMessageTest, IService
     {
         this.currentUser = currentUser;
     }
-    [Subscriber(useDeadLetterQueue: true)]
+    [Subscriber(useDeadLetterQueue: true, retryCount: 3)]
     public async Task<Response<Empty>> Message(MessageEvent message)
     {
+
+        Console.WriteLine("Error Id: " + currentUser.Id);
+        return await Task.FromResult(new Error(ErrorCode.Exception, "Error subscribing. Id: " + currentUser.Id));
         var rand = new Random();
         var next = rand.Next(1, 10);
         if (next <= 5)

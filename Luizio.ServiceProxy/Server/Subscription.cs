@@ -12,4 +12,5 @@ internal class Subscription
     public string PubSub { get; set; } = string.Empty;
     public string? DeadLetterQueue { get; set; }
     public string Service { get; set; } = string.Empty;
+    public int RetryCount { get; set; } = 3;
 }
