@@ -64,10 +64,10 @@ public class RabbitMqSubscriber : IHostedService
                 var body = ea.Body.ToArray();
                 if (subscription.Method is null)
                 {
-                    logger.LogError("Subscription method not set for event \"{Topic}\"", ea.Exchange);
+                    logger.LogError("Subscription method not set for event \"{Topic}\".", ea.Exchange);
                     return;
                 }
-                logger.LogInformation("Event received on {Subscription}", subscription.Topic);
+                logger.LogInformation("Event received on {Subscription}.", subscription.Topic);
                 var message = System.Text.Json.JsonSerializer.Deserialize(Encoding.UTF8.GetString(body), subscription.Method.GetParameters().First().ParameterType);
                 if (message != null)
                 {
@@ -102,13 +102,13 @@ public class RabbitMqSubscriber : IHostedService
                     if (!error.HasError)
                     {
                         channel.BasicAck(ea.DeliveryTag, false);
-                        logger.LogInformation("Event successfully processed event on topic {Topic}", ea.Exchange);
+                        logger.LogInformation("Event successfully processed event on topic {Topic}.", ea.Exchange);
                     }
                     else
                     {
                         var shouldRequeue = error.Code == ErrorCode.Exception;
                         channel.BasicNack(ea.DeliveryTag, false, shouldRequeue);
-                        logger.LogInformation("Failed to process event on topic {Topic}", ea.Exchange);
+                        logger.LogError("Failed to process event on topic {Topic}.", ea.Exchange);
                     }
                 }
                 else

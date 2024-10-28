@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace Luizio.ServiceProxy.Server;
 
-public class Subscription
+internal class Subscription
 {
     public MethodInfo? Method { get; set; }
     public string Topic { get; set; } = string.Empty;
