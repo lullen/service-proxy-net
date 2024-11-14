@@ -8,5 +8,5 @@ using System.Threading.Tasks;
 namespace Luizio.ServiceProxy.Messaging;
 public interface IEventPublisher
 {
-    Response<Empty> Publish<T>(T message, CurrentUser currentUser) where T : class, new();
+    Task<Response<Empty>> Publish<T>(T message, CurrentUser currentUser) where T : class, new();
 }

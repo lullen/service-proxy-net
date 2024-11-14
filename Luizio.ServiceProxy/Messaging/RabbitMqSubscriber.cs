@@ -1,6 +1,7 @@
 ﻿using Luizio.ServiceProxy.Client;
 using Luizio.ServiceProxy.Models;
 using Luizio.ServiceProxy.Server;
+using Microsoft.AspNetCore.Connections;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -14,50 +15,38 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace Luizio.ServiceProxy.Messaging;
-public class RabbitMqSubscriber : IHostedService
+public class RabbitMqSubscriber(IServiceProvider serviceProvider, IProxy proxy, RabbitMQ.Client.IConnectionFactory connectionFactory, ILogger<RabbitMqSubscriber> logger) : IHostedService
 {
-    private readonly IServiceProvider serviceProvider;
-    private readonly IProxy proxy;
-    private readonly ILogger<RabbitMqSubscriber> logger;
-    private readonly IConnection connection;
+    private IConnection connection;
     private const string XRetryCount = "x-retry-count";
 
-    public RabbitMqSubscriber(IServiceProvider serviceProvider, IProxy proxy, RabbitMQ.Client.IConnectionFactory connectionFactory, ILogger<RabbitMqSubscriber> logger)
+    public async Task StartAsync(CancellationToken cancellationToken)
     {
-        this.serviceProvider = serviceProvider;
-        this.proxy = proxy;
-        this.logger = logger;
-        connection = connectionFactory.CreateConnection();
+        connection = await connectionFactory.CreateConnectionAsync();
+        await Subscribe(connection);
     }
 
-    public Task StartAsync(CancellationToken cancellationToken)
+    public async Task StopAsync(CancellationToken cancellationToken)
     {
-        Subscribe(connection);
-        return Task.CompletedTask;
+        await connection.CloseAsync();
     }
 
-    public Task StopAsync(CancellationToken cancellationToken)
-    {
-        connection.Close();
-        return Task.CompletedTask;
-    }
-
-    public void Subscribe(IConnection connection)
+    public async Task Subscribe(IConnection connection)
     {
         var subscriptions = ServiceStore.GetSubscriptions();
         foreach (var subscription in subscriptions)
         {
             logger.LogInformation($"Subscribing to {subscription.Topic}_{subscription.Service}_{subscription.Method.Name.ToLower()}");
-            var channel = connection.CreateModel();
-            channel.ExchangeDeclare(exchange: subscription.Topic, durable: true, type: ExchangeType.Fanout);
+            var channel = await connection.CreateChannelAsync();
+            await channel.ExchangeDeclareAsync(exchange: subscription.Topic, durable: true, type: ExchangeType.Fanout);
 
             var queueName = $"{subscription.Topic}_{subscription.Service}_{subscription.Method.Name.ToLower()}";
-            channel.QueueDeclare(queueName, true, false, false, null);
-            channel.QueueBind(queueName, subscription.Topic, string.Empty);
+            await channel.QueueDeclareAsync(queueName, true, false, false, null);
+            await channel.QueueBindAsync(queueName, subscription.Topic, string.Empty);
 
-            var consumer = new EventingBasicConsumer(channel);
+            var consumer = new AsyncEventingBasicConsumer(channel);
 
-            consumer.Received += (model, ea) =>
+            consumer.ReceivedAsync += async (model, ea) =>
             {
                 var body = ea.Body.ToArray();
                 if (subscription.Method is null)
@@ -99,37 +88,33 @@ public class RabbitMqSubscriber : IHostedService
 
                     if (!error.HasError)
                     {
-                        channel.BasicAck(ea.DeliveryTag, false);
+                        await channel.BasicAckAsync(ea.DeliveryTag, false);
                         logger.LogInformation("Event successfully processed event on topic {Topic}.", ea.Exchange);
                     }
                     else
                     {
 
                         var shouldRequeue = error.Code == ErrorCode.Exception;
-
                         var retryCount = 0;
-                        if (ea.BasicProperties.Headers == null)
-                        {
-                            ea.BasicProperties.Headers = new Dictionary<string, object>
-                            {
-                                {XRetryCount, retryCount }
-                            };
-                        }
 
-                        if (ea.BasicProperties.Headers.TryGetValue(XRetryCount, out var xretryCount))
+                        if (ea.BasicProperties.Headers?.TryGetValue(XRetryCount, out var xretryCount) == true)
                         {
-                            retryCount = (int)xretryCount;
+                            retryCount = Convert.ToInt32(xretryCount);
                         }
                         retryCount++;
-                        ea.BasicProperties.Headers[XRetryCount] = retryCount;
+                        var newProperties = new BasicProperties
+                        {
+                            Headers = ea.BasicProperties.Headers ?? new Dictionary<string, object?>()
+                        };
+                        newProperties.Headers[XRetryCount] = retryCount;
 
                         shouldRequeue = shouldRequeue && retryCount <= subscription.RetryCount;
 
                         if (shouldRequeue)
                         {
-                            channel.BasicPublish(ea.Exchange, ea.RoutingKey, ea.BasicProperties, ea.Body);
+                            await channel.BasicPublishAsync(ea.Exchange, ea.RoutingKey, true, newProperties, ea.Body);
                         }
-                        channel.BasicNack(ea.DeliveryTag, false, false);
+                        await channel.BasicNackAsync(ea.DeliveryTag, false, false);
                         logger.LogError("Failed to process event on topic {Topic}. Retrying {Retrying}, retry count {RetryCount}", ea.Exchange, shouldRequeue, retryCount);
                     }
                 }
@@ -140,7 +125,7 @@ public class RabbitMqSubscriber : IHostedService
 
             };
 
-            channel.BasicConsume(queue: queueName, autoAck: false, consumer: consumer);
+            await channel.BasicConsumeAsync(queue: queueName, autoAck: false, consumer: consumer);
         }
     }
 }

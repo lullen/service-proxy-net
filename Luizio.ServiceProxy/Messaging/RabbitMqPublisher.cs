@@ -4,38 +4,35 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace Luizio.ServiceProxy.Messaging;
 public class RabbitMqPublisher : IEventPublisher
 {
-    private readonly IConnection connection;
+    private readonly IConnectionFactory connectionFactory;
 
     public RabbitMqPublisher(IConnectionFactory connectionFactory)
     {
-        connection = connectionFactory.CreateConnection();
+        this.connectionFactory = connectionFactory;
     }
 
-    public Response<Empty> Publish<T>(T message, CurrentUser currentUser) where T : class, new()
+    public async Task<Response<Empty>> Publish<T>(T message, CurrentUser currentUser) where T : class, new()
     {
-        return Publish(message, string.Empty, currentUser);
+        return await Publish(message, string.Empty, currentUser);
     }
 
-    public Response<Empty> Publish<T>(T message, string routingKey, CurrentUser currentUser) where T : class, new()
+    public async Task<Response<Empty>> Publish<T>(T message, string routingKey, CurrentUser currentUser) where T : class, new()
     {
-        var channel = connection.CreateModel();
+        var connection = await connectionFactory.CreateConnectionAsync();
+        var channel = await connection.CreateChannelAsync();
 
         var messageBodyBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message));
-        var props = channel.CreateBasicProperties();
-        //props.ContentType = "text/json";
-        props.Persistent = true;
-        //props.Headers = new Dictionary<string,object>();
-
-        //foreach (var metadata in currentUser.Metadata)
-        //{
-        //    props.Headers.Add(metadata.Key, metadata.Value);
-        //}
-        var exchange = typeof(T).FullName;
-        channel.BasicPublish(exchange, routingKey, props, messageBodyBytes);
+        var props = new BasicProperties
+        {
+            Persistent = true
+        };
+        var exchange = typeof(T).FullName!;
+        await channel.BasicPublishAsync(exchange, routingKey, false, props, messageBodyBytes);
 
         return new Empty();
     }
