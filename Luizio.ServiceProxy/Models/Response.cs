@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace Luizio.ServiceProxy.Models;
 
-public class Response<T> where T : class
+public class Response<T>
 {
     public Error Error { get; set; } = Error.Empty;
     public T? Result { get; set; }
@@ -47,7 +47,7 @@ public class Response<T> where T : class
         }
     }
 
-    public Response<TRes> Next<TRes>(Func<Response<TRes>> next) where TRes : class, new()
+    public Response<TRes> Next<TRes>(Func<Response<TRes>> next)
     {
         if (HasError)
         {
