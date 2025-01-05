@@ -3,6 +3,7 @@ stages:
 
 variables:
   PROJECT_FILE: Luizio.ServiceProxy/Luizio.ServiceProxy.csproj
+  NUGET_API_KEY: oy2ltkpdmvxcpuvx4arakdjqizlssftuvkeixtlit3kzza
 
 deploy:
   stage: deploy
