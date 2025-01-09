@@ -76,9 +76,12 @@ public class RabbitMqSubscriber : IHostedService
                         var currentUser = scope.ServiceProvider.GetRequiredService<CurrentUser>();
                         if (ea.BasicProperties.Headers != null)
                         {
+                            // Convert to List<KeyValuePair<string, string>> using LINQ
                             currentUser.Metadata = ea.BasicProperties.Headers
-                                .Where(h => h.Value?.ToString() is not null)
-                                .Select(h => new KeyValuePair<string, string>(h.Key, h.Value.ToString()!)).ToList();
+                                .Where(kvp => kvp.Value is List<string>) // Filter entries where value is List<string>
+                                .SelectMany(kvp => ((List<string>)kvp.Value)
+                                    .Select(value => new KeyValuePair<string, string>(kvp.Key, value)))
+                                .ToList();
                         }
 
                         var service = ServiceStore.GetService(subscription.Service, scope.ServiceProvider);
