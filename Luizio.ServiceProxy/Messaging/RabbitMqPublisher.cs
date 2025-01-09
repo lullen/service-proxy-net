@@ -30,19 +30,25 @@ public class RabbitMqPublisher : IEventPublisher
         props.Persistent = true;
         props.Headers = new Dictionary<string, object>();
 
+        var testing = new Dictionary<string, List<string>>();
         foreach (var metadata in currentUser.Metadata)
         {
-            if (props.Headers.TryGetValue(metadata.Key, out var value))
+            if (testing.TryGetValue(metadata.Key, out var value))
             {
-                var p = value as List<string> ?? new List<string>();
+                var p = value ?? [];
                 p.Add(metadata.Value);
             }
             else
             {
-                props.Headers.Add(metadata.Key, new List<string> { metadata.Value });
-
+                testing.Add(metadata.Key, [metadata.Value]);
             }
         }
+
+        foreach (var key in testing.Keys)
+        {
+            props.Headers.Add(key, JsonSerializer.Serialize(testing[key]));
+        }
+
         var exchange = typeof(T).FullName;
         channel.BasicPublish(exchange, routingKey, props, messageBodyBytes);
 

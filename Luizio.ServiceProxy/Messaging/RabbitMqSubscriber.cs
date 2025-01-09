@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -76,12 +77,22 @@ public class RabbitMqSubscriber : IHostedService
                         var currentUser = scope.ServiceProvider.GetRequiredService<CurrentUser>();
                         if (ea.BasicProperties.Headers != null)
                         {
-                            // Convert to List<KeyValuePair<string, string>> using LINQ
-                            currentUser.Metadata = ea.BasicProperties.Headers
-                                .Where(kvp => kvp.Value is List<string>) // Filter entries where value is List<string>
-                                .SelectMany(kvp => ((List<string>)kvp.Value)
-                                    .Select(value => new KeyValuePair<string, string>(kvp.Key, value)))
+                            var headers = ea.BasicProperties.Headers;
+
+                            var metadata = headers
+                                .SelectMany(header =>
+                                {
+                                    var key = header.Key;
+                                    var valueList = header.Value switch
+                                    {
+                                        byte[] byteArray => JsonSerializer.Deserialize<List<string>>(Encoding.UTF8.GetString(byteArray)) ?? new List<string>(),
+                                        _ => new List<string>()
+                                    };
+
+                                    return valueList.Select(value => new KeyValuePair<string, string>(key, value));
+                                })
                                 .ToList();
+                            currentUser.Metadata = metadata;
                         }
 
                         var service = ServiceStore.GetService(subscription.Service, scope.ServiceProvider);
