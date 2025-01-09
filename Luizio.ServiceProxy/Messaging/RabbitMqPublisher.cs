@@ -28,12 +28,12 @@ public class RabbitMqPublisher : IEventPublisher
         var props = channel.CreateBasicProperties();
         //props.ContentType = "text/json";
         props.Persistent = true;
-        //props.Headers = new Dictionary<string,object>();
+        props.Headers = new Dictionary<string,object>();
 
-        //foreach (var metadata in currentUser.Metadata)
-        //{
-        //    props.Headers.Add(metadata.Key, metadata.Value);
-        //}
+        foreach (var metadata in currentUser.Metadata)
+        {
+           props.Headers.Add(metadata.Key, metadata.Value);
+        }
         var exchange = typeof(T).FullName;
         channel.BasicPublish(exchange, routingKey, props, messageBodyBytes);
 
