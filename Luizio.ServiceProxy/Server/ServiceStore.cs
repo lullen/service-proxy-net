@@ -92,9 +92,11 @@ internal class ServiceStore
                 {
                     Service = item.Key,
                     Method = method,
-                    Topic = method.GetParameters().First().ParameterType.FullName.ToString(),
+                    Topic = method.GetParameters().First().ParameterType.FullName!.ToString(),
                     DeadLetterQueue = subscriber.UseDeadLetterQueue ? $"{method.GetParameters().First().ParameterType.FullName}_dlq" : string.Empty,
-                    PubSub = pubsub
+                    PubSub = pubsub,
+                    PrefetchCount = subscriber.PrefetchCount,
+                    RetryCount = subscriber.RetryCount
                 };
                 _subscriptions.Add(s);
             }

@@ -43,7 +43,10 @@ public class RabbitMqSubscriber(IServiceProvider serviceProvider, IProxy proxy, 
             var queueName = $"{subscription.Topic}_{subscription.Service}_{subscription.Method.Name.ToLower()}";
             await channel.QueueDeclareAsync(queueName, true, false, false, null);
             await channel.QueueBindAsync(queueName, subscription.Topic, string.Empty);
-
+            if (subscription.PrefetchCount > 0)
+            {
+                await channel.BasicQosAsync(0, subscription.PrefetchCount, false);
+            }
             var consumer = new AsyncEventingBasicConsumer(channel);
 
             consumer.ReceivedAsync += async (model, ea) =>

@@ -9,6 +9,7 @@ public class SubscriberAttribute : Attribute
 {
     public bool UseDeadLetterQueue { get; } = false;
     public int RetryCount { get; } = 3;
+    public ushort PrefetchCount { get; } = 0;
 
 
     public SubscriberAttribute()
@@ -19,9 +20,10 @@ public class SubscriberAttribute : Attribute
     {
         RetryCount = retryCount;
     }
-    public SubscriberAttribute(bool useDeadLetterQueue, int retryCount)
+    public SubscriberAttribute(bool useDeadLetterQueue, int retryCount, ushort prefetchCount)
     {
         UseDeadLetterQueue = useDeadLetterQueue;
         RetryCount = retryCount;
+        PrefetchCount = prefetchCount;
     }
 }
