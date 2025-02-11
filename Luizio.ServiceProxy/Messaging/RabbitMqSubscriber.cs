@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -43,7 +44,10 @@ public class RabbitMqSubscriber(IServiceProvider serviceProvider, IProxy proxy, 
             var queueName = $"{subscription.Topic}_{subscription.Service}_{subscription.Method.Name.ToLower()}";
             await channel.QueueDeclareAsync(queueName, true, false, false, null);
             await channel.QueueBindAsync(queueName, subscription.Topic, string.Empty);
-
+            if (subscription.PrefetchCount > 0)
+            {
+                await channel.BasicQosAsync(0, subscription.PrefetchCount, false);
+            }
             var consumer = new AsyncEventingBasicConsumer(channel);
 
             consumer.ReceivedAsync += async (model, ea) =>
@@ -65,9 +69,22 @@ public class RabbitMqSubscriber(IServiceProvider serviceProvider, IProxy proxy, 
                         var currentUser = scope.ServiceProvider.GetRequiredService<CurrentUser>();
                         if (ea.BasicProperties.Headers != null)
                         {
-                            currentUser.Metadata = ea.BasicProperties.Headers
-                                .Where(h => h.Value?.ToString() is not null)
-                                .Select(h => new KeyValuePair<string, string>(h.Key, h.Value.ToString()!)).ToList();
+                            var headers = ea.BasicProperties.Headers;
+
+                            var metadata = headers
+                                .SelectMany(header =>
+                                {
+                                    var key = header.Key;
+                                    var valueList = header.Value switch
+                                    {
+                                        byte[] byteArray => JsonSerializer.Deserialize<List<string>>(Encoding.UTF8.GetString(byteArray)) ?? new List<string>(),
+                                        _ => new List<string>()
+                                    };
+
+                                    return valueList.Select(value => new KeyValuePair<string, string>(key, value));
+                                })
+                                .ToList();
+                            currentUser.Metadata = metadata;
                         }
 
                         var service = ServiceStore.GetService(subscription.Service, scope.ServiceProvider);

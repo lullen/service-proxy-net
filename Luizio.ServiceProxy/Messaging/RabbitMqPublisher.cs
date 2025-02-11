@@ -27,10 +27,33 @@ public class RabbitMqPublisher : IEventPublisher
         var channel = await connection.CreateChannelAsync();
 
         var messageBodyBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message));
+
+
         var props = new BasicProperties
         {
-            Persistent = true
+            Persistent = true,
+            Headers = new Dictionary<string, object?>()
         };
+
+        var testing = new Dictionary<string, List<string>>();
+        foreach (var metadata in currentUser.Metadata)
+        {
+            if (testing.TryGetValue(metadata.Key, out var value))
+            {
+                var p = value ?? [];
+                p.Add(metadata.Value);
+            }
+            else
+            {
+                testing.Add(metadata.Key, [metadata.Value]);
+            }
+        }
+
+        foreach (var key in testing.Keys)
+        {
+            props.Headers.Add(key, JsonSerializer.Serialize(testing[key]));
+        }
+
         var exchange = typeof(T).FullName!;
         await channel.BasicPublishAsync(exchange, routingKey, false, props, messageBodyBytes);
 

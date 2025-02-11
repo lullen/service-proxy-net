@@ -13,4 +13,5 @@ internal class Subscription
     public string? DeadLetterQueue { get; set; }
     public string Service { get; set; } = string.Empty;
     public int RetryCount { get; set; } = 3;
+    public ushort PrefetchCount { get; set; }
 }

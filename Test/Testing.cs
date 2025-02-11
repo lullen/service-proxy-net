@@ -26,16 +26,28 @@ public class Testing
 			currentUser.Metadata.Add(KeyValuePair.Create("Test", "Testing"));
 			currentUser.Metadata.Add(KeyValuePair.Create("Authorization", "Bearer sdgsdf3245236"));
 		}
-
+		
 
 		var ress = await sp.Create<ServiceOne>("Server", "ServiceImpl").MethodOne(new MethodRequestOne { Text = "Hi there!" })
-			.Next((res) => sp.Create<ServiceTwo>("Server", "ServiceImpl").MethodTwo(new MethodRequestTwo { Text = "Hello " }))
+			.Next(async (res) =>
+			{
+				var res2 = await sp.Create<ServiceTwo>("Server", "ServiceImpl").MethodTwo(new MethodRequestTwo { Text = "Hello " });
+
+				var x = new Response<(Empty first, MethodResponseTwo second)>((res, res2.Result!));
+				return x;
+			})
 			// Create failure request
-			.Next((res) => sp.Create<ServiceTwo>("Server", "ServiceImpl").MethodThree(new MethodRequestThree { Text = res.Text + " there! next" }))
+			.Next(async (res) =>
+			{
+				var a = await sp.Create<ServiceTwo>("Server", "ServiceImpl").MethodThree(new MethodRequestThree { Text = res.first.ToString() + " there! next" });
+
+				var y = new Response<(Empty First, MethodResponseTwo Second, MethodResponseThree Third)>((res.first, res.second, a.Result!));
+				return y;
+			})
 			.OnError((error) =>
 			{
 				Console.WriteLine("ERROR!!! " + error.Description);
-				return Task.FromResult(new Response<MethodResponseThree>(error));
+				return Task.FromResult(new Response<(Empty First, MethodResponseTwo Second, MethodResponseThree Third)>(error));
 			});
 
 		if (ress.HasError)
@@ -45,8 +57,8 @@ public class Testing
 		}
 		else
 		{
-			Console.WriteLine("Returned " + ress.Result.Text);
-			return ress.Result.Text;
+			Console.WriteLine("Returned " + ress.Result.Third.Text);
+			return ress.Result.Third.Text;
 		}
 
 	}
