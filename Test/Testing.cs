@@ -39,8 +39,12 @@ public class Testing
 			// Create failure request
 			.Next(async (res) =>
 			{
-				var a = await sp.Create<ServiceTwo>("Server", "ServiceImpl").MethodThree(new MethodRequestThree { Text = res.first.ToString() + " there! next" });
-
+				var a = await sp.Create<ServiceTwo>("Server", "ServiceImpl").MethodThree(new MethodRequestThree { Text = res.first.ToString() + " there! nex" });
+				if (a.HasError)
+				{
+					Console.WriteLine("ERROR!!! " + a.Error.Description);
+					return new Response<(Empty First, MethodResponseTwo Second, MethodResponseThree Third)>(a.Error);
+				}
 				var y = new Response<(Empty First, MethodResponseTwo Second, MethodResponseThree Third)>((res.first, res.second, a.Result!));
 				return y;
 			})

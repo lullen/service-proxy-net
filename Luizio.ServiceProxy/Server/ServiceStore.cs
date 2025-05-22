@@ -3,35 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Luizio.ServiceProxy.Server;
 
 internal class ServiceStore
 {
-    private readonly ILogger<ServiceStore> _logger;
-    private static Dictionary<string, Type> _services = new();
-    private static IList<Subscription> _subscriptions = new List<Subscription>();
+    private Dictionary<string, Type> _services = [];
+    private IList<Subscription> _subscriptions = [];
 
-    public ServiceStore(ILogger<ServiceStore> logger)
-    {
-        _logger = logger;
-    }
-
-    internal static void Clear()
+    internal void Clear()
     {
         _services = new Dictionary<string, Type>();
         _subscriptions = new List<Subscription>();
     }
 
-    internal static IService GetService(string service, IServiceProvider provider)
+    internal IService GetService(string service, IServiceProvider provider)
     {
         var invokeClass = _services[service.ToLowerInvariant()];
         return (IService)provider.GetRequiredService(invokeClass);
 
     }
 
-    internal static MethodInfo GetMethod(string methodName, Type parameterType, IService invokeClass)
+    internal MethodInfo GetMethod(string methodName, Type parameterType, IService invokeClass)
     {
         MethodInfo? invokeMethod = null;
         methodName = methodName.ToLower();
@@ -52,18 +45,18 @@ internal class ServiceStore
         return invokeMethod;
     }
 
-    internal static void RegisterService(Type service)
+    internal void RegisterService(Type service)
     {
         _services.Add(service.Name.ToLower(), service);
         //logger.info("Registered {} as a service.", service.Name);
     }
 
-    internal static IEnumerable<Subscription> GetSubscriptions()
+    internal IEnumerable<Subscription> GetSubscriptions()
     {
         return _subscriptions;
     }
 
-    internal static void RegisterSubscribers(string pubsub)
+    internal void RegisterSubscribers(string pubsub)
     {
         foreach (var item in _services)
         {

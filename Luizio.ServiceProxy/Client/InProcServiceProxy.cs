@@ -37,8 +37,9 @@ public class InProcServiceProxy : IServiceProxy
         MethodInfo methodToInvoke;
         try
         {
-            serviceImpl = ServiceStore.GetService(serviceName, scope.ServiceProvider);
-            methodToInvoke = ServiceStore.GetMethod(methodName, typeof(T), serviceImpl);
+            var serviceStore = scope.ServiceProvider.GetRequiredService<ServiceStore>();
+            serviceImpl = serviceStore.GetService(serviceName, scope.ServiceProvider);
+            methodToInvoke = serviceStore.GetMethod(methodName, typeof(T), serviceImpl);
         }
         catch (Exception e)
         {

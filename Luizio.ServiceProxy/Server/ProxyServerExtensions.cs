@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Luizio.ServiceProxy.Models;
+using Luizio.ServiceProxy.Common;
 
 namespace Luizio.ServiceProxy.Server;
 
@@ -16,9 +17,21 @@ public static class ProxyServerExtensions
     //        .AddTransient<DaprServer>();
     //}
 
-    public static IServiceCollection AddProxyServer(this IServiceCollection services)
+    public static ProxyBuilder AddProxyServer(this IServiceCollection services)
     {
-        return services.AddScoped<CurrentUser>();
+        ProxyBuilder proxyBuilder;
+        if (!services.Any(s => s.ServiceType == typeof(ServiceStore)))
+        {
+            var serviceStore = new ServiceStore();
+            services.AddSingleton(serviceStore);
+            proxyBuilder = new ProxyBuilder(services, serviceStore);
+        }
+        else
+        {
+            throw new InvalidOperationException("ServiceStore already registered.");
+        }
+        services.AddScoped<CurrentUser>();
+        return proxyBuilder;
     }
 
 }

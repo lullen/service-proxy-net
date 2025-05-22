@@ -5,11 +5,23 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "C#: HttpClient Debug",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/HttpClient/HttpClient.csproj"
+        },
+        {
+            "name": "C#: HttpServer Debug",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/HttpServer/HttpServer.csproj"
+        },
+        {
             "name": ".NET Core Launch (console)",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/Test/bin/Debug/net5.0/Test.dll",
+            "program": "${workspaceFolder}/Test/bin/Debug/net9.0/Test.dll",
             "args": [],
             "cwd": "${workspaceFolder}/Test",
             "console": "internalConsole",

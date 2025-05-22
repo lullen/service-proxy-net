@@ -11,7 +11,7 @@ public class MessageSubscriber : IMessageTest, IService
     {
         this.currentUser = currentUser;
     }
-    [Subscriber(useDeadLetterQueue: true, retryCount: 3)]
+    [Subscriber(useDeadLetterQueue: true, retryCount: 3, 1)]
     public async Task<Response<Empty>> Message(MessageEvent message)
     {
 

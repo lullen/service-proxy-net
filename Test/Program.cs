@@ -25,11 +25,12 @@ class Program
 	static WebApplicationBuilder CreateHostBuilder(string[] args)
 	{
 		var builder = WebApplication.CreateBuilder(args);
-		builder.Services.AddProxyClient(ProxyType.InProc)
-						.AddService<ServiceImpl>()
-						//.AddTransient<ServiceOne, ServiceImpl>()
-						//.AddTransient<ServiceTwo, ServiceImpl>()
-						.AddTransient<Testing>();
+		builder.Services
+			.AddTransient<Testing>()
+			.AddProxyClient(ProxyType.InProc)
+			.AddService<ServiceImpl>();
+			//.AddTransient<ServiceOne, ServiceImpl>()
+			//.AddTransient<ServiceTwo, ServiceImpl>()
 
 		return builder;
 	}
