@@ -10,36 +10,30 @@ namespace Luizio.ServiceProxy.Client;
 
 public static class ProxyClientExtensions
 {
-	public static ProxyBuilder AddProxyClient(this IServiceCollection services, ProxyType proxyType)
+	public static IServiceCollection AddProxyClient(this IServiceCollection services, ProxyType proxyType)
 	{
 		if (proxyType == ProxyType.None)
 		{
 			throw new ArgumentOutOfRangeException(nameof(proxyType));
 		}
-        ProxyBuilder proxyBuilder;
-        if (!services.Any(s => s.ServiceType == typeof(ServiceStore)))
-        {
-            var serviceStore = new ServiceStore();
-            services.AddSingleton(serviceStore);
-            proxyBuilder = new ProxyBuilder(services, serviceStore);
-        }
-        else
-        {
-            throw new InvalidOperationException("ServiceStore already registered.");
-        }
+
 		services.AddScoped<CurrentUser>();
 		services.AddTransient<IProxy, Proxy>(f => new Proxy(f.GetRequiredService<IServiceProvider>(), proxyType));
 		services.AddOpenTelemetry().WithTracing(tracing => tracing.AddSource(ProxyActivitySource.SourceName));
-		return proxyBuilder;
+		return services;
 	}
 
-	public static ProxyBuilder AddService<T>(this ProxyBuilder services) where T : class
+	public static IServiceCollection AddService<T>(this IServiceCollection services) where T : class
 	{
-		services.ServiceStore.RegisterService(typeof(T));
-		if (!services.Services.Any(s => s.ServiceType == typeof(T)))
+		var interfaces = typeof(T).GetInterfaces()
+			.Where(i => i != typeof(IService) && !i.IsGenericType && !i.IsNested && !i.IsSpecialName && !i.FullName.StartsWith("System."))
+			.ToList();
+
+		foreach (var iface in interfaces)
 		{
-			services.Services.AddTransient(typeof(T));
+			services.AddKeyedTransient(iface, typeof(T).Name.ToLower(), typeof(T));
 		}
+		services.AddKeyedTransient(typeof(T), typeof(T).Name.ToLower());
 
 		return services;
 	}

@@ -1,6 +1,7 @@
 
 using Luizio.ServiceProxy.Client;
 using Luizio.ServiceProxy.Messaging;
+using Luizio.ServiceProxy.Models;
 
 namespace MessageTest;
 
@@ -18,7 +19,14 @@ public class Program
         builder.Services.AddSwaggerGen();
         builder.Services.AddProxyClient(ProxyType.InProc)
             .AddService<MessageSubscriber>()
-            .AddMessaging(new MessagingSettings { MessagingType = MessagingType.RabbitMQ, Host = "localhost", Username = "guest", Password = "guest" });
+            .AddMessaging(new MessagingSettings { MessagingType = MessagingType.RabbitMQ, Host = "localhost", Username = "guest", Password = "guest" })
+            .RegisterSubscriber<MessageSubscriber>(x => x.Message, new SubscriberSettings
+            {
+                PubSub = "pubsub",
+                UseDeadLetterQueue = true,
+                RetryCount = 3,
+                PrefetchCount = 1
+            });
 
         var app = builder.Build();
 

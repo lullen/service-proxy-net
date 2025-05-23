@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 
 namespace Luizio.ServiceProxy.Client;
 
-public class ServiceProxy : DispatchProxy
+public class ServiceProxy<T> : DispatchProxy where T : class, IService
 {
     private IServiceProvider? _sp;
     private string? _app;
@@ -49,7 +49,7 @@ public class ServiceProxy : DispatchProxy
         {
             ProxyType.None => throw new NotImplementedException(),
             ProxyType.HTTP => new HttpServiceProxy(sp, currentUser),
-            ProxyType.InProc => new InProcServiceProxy(sp, currentUser),
+            ProxyType.InProc => new InProcServiceProxy<T>(sp, currentUser),
             _ => throw new NotImplementedException()
         };
     }
@@ -69,11 +69,11 @@ public class ServiceProxy : DispatchProxy
         return true;
     }
 
-    public static T Create<T>(ProxyType proxyType, IServiceProvider sp, string app, string service) where T : class, IService
+    public static T Create(ProxyType proxyType, IServiceProvider sp, string app, string service)
     {
 
-        object proxy = Create<T, ServiceProxy>();
-        var serviceProxy = (ServiceProxy)proxy;
+        object proxy = Create<T, ServiceProxy<T>>();
+        var serviceProxy = (ServiceProxy<T>)proxy;
         serviceProxy._sp = sp;
         serviceProxy._app = app;
         serviceProxy._service = service;
@@ -114,13 +114,13 @@ public class Proxy : IProxy
 
     public T Create<T>(string app, string service) where T : class, IService
     {
-        T proxy = ServiceProxy.Create<T>(_proxyType, _sp, app, service);
+        T proxy = ServiceProxy<T>.Create(_proxyType, _sp, app, service);
         return proxy;
     }
 
     public T Create<T>(string app, string service, ProxyType proxyType) where T : class, IService
     {
-        T proxy = ServiceProxy.Create<T>(proxyType, _sp, app, service);
+        T proxy = ServiceProxy<T>.Create(proxyType, _sp, app, service);
         return proxy;
     }
 }

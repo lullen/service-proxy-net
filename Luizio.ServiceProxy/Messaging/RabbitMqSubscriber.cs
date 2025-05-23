@@ -34,7 +34,7 @@ public class RabbitMqSubscriber(IServiceProvider serviceProvider, IProxy proxy, 
 
     public async Task Subscribe(IConnection connection)
     {
-        var subscriptions = serviceProvider.GetRequiredService<ServiceStore>().GetSubscriptions();
+        var subscriptions = serviceProvider.GetRequiredService<SubscriptionStore>().GetSubscriptions();
         foreach (var subscription in subscriptions)
         {
             logger.LogInformation($"Subscribing to {subscription.Topic}_{subscription.Service}_{subscription.Method.Name.ToLower()}");
@@ -87,7 +87,7 @@ public class RabbitMqSubscriber(IServiceProvider serviceProvider, IProxy proxy, 
                             currentUser.Metadata = metadata;
                         }
 
-                        var service = serviceProvider.GetRequiredService<ServiceStore>().GetService(subscription.Service, scope.ServiceProvider);
+                        var service = serviceProvider.GetRequiredKeyedService<SubscriptionStore>(subscription.Service.ToLower()); // .GetService(subscription.Service, scope.ServiceProvider);
                         var task = (Task)subscription.Method.Invoke(service, new object[] { message });
 
                         var resultProperty = subscription.Method.ReturnType.GetProperty(nameof(Task<object>.Result));

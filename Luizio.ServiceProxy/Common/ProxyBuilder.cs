@@ -1,16 +1,16 @@
 
 using System;
-using Luizio.ServiceProxy.Server;
+using Luizio.ServiceProxy.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Luizio.ServiceProxy.Common;
 
-public class ProxyBuilder
+public class MessagingBuilder
 {
     internal readonly IServiceCollection Services;
-    internal readonly ServiceStore ServiceStore;
+    internal readonly SubscriptionStore ServiceStore;
 
-    internal ProxyBuilder(IServiceCollection services, ServiceStore serviceStore)
+    internal MessagingBuilder(IServiceCollection services, SubscriptionStore serviceStore)
     {
         Services = services;
         ServiceStore = serviceStore;

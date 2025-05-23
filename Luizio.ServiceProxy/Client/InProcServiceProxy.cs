@@ -7,26 +7,18 @@ using Luizio.ServiceProxy.Server;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Reflection;
+using System.Linq;
 
 namespace Luizio.ServiceProxy.Client;
 
-public class InProcServiceProxy : IServiceProxy
+public class InProcServiceProxy<TClass>(IServiceProvider sp, CurrentUser currentUser) : IServiceProxy where TClass : class, IService
 {
-    private readonly IServiceProvider sp;
-    private readonly CurrentUser currentUser;
-
-    public InProcServiceProxy(IServiceProvider sp, CurrentUser currentUser)
-    {
-        this.sp = sp;
-        this.currentUser = currentUser;
-    }
-
-    public async Task<Response<TRes>> Invoke<T, TRes>(string appName, string serviceName, string methodName, T request)
-        where T : class, new()
+    public async Task<Response<TRes>> Invoke<TParam, TRes>(string appName, string serviceName, string methodName, TParam request)
+        where TParam : class, new()
         where TRes : class
     {
         using var scope = sp.CreateScope();
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<InProcServiceProxy>>();
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<InProcServiceProxy<TClass>>>();
         logger.LogInformation("Calling \"{AppName}.{ServiceName}.{MethodName}\".", appName, serviceName, methodName);
 
         var newCurrentUser = scope.ServiceProvider.GetRequiredService<CurrentUser>();
@@ -37,9 +29,8 @@ public class InProcServiceProxy : IServiceProxy
         MethodInfo methodToInvoke;
         try
         {
-            var serviceStore = scope.ServiceProvider.GetRequiredService<ServiceStore>();
-            serviceImpl = serviceStore.GetService(serviceName, scope.ServiceProvider);
-            methodToInvoke = serviceStore.GetMethod(methodName, typeof(T), serviceImpl);
+            serviceImpl = scope.ServiceProvider.GetRequiredKeyedService<TClass>(serviceName.ToLower());
+            methodToInvoke = GetMethod(methodName, typeof(TParam), serviceImpl);
         }
         catch (Exception e)
         {
@@ -57,7 +48,7 @@ public class InProcServiceProxy : IServiceProxy
                 Activity.Current = proxyActivity;
             }
 
-            var res = methodToInvoke.Invoke(serviceImpl, new[] { request });
+            var res = methodToInvoke.Invoke(serviceImpl, [request]);
             var task = res as Task<Response<TRes>>;
             var response = await task!;
 
@@ -80,7 +71,7 @@ public class InProcServiceProxy : IServiceProxy
         }
     }
 
-    private void LogResponse<TRes>(string appName, string serviceName, string methodName, ILogger<InProcServiceProxy> logger, Activity? proxyActivity, Response<TRes> response) where TRes : class
+    private void LogResponse<TRes>(string appName, string serviceName, string methodName, ILogger<InProcServiceProxy<TClass>> logger, Activity? proxyActivity, Response<TRes> response) where TRes : class
     {
         if (response.HasError)
         {
@@ -92,5 +83,27 @@ public class InProcServiceProxy : IServiceProxy
             logger.LogInformation("Method call to \"{AppName}.{ServiceName}.{MethodName}\" succeeded.", appName, serviceName, methodName);
             proxyActivity?.SetStatus(ActivityStatusCode.Ok);
         }
+    }
+
+
+    private MethodInfo GetMethod(string methodName, Type parameterType, IService invokeClass)
+    {
+        MethodInfo? invokeMethod = null;
+        methodName = methodName.ToLower();
+
+        foreach (var method in invokeClass.GetType().GetMethods())
+        {
+            if (method.Name.ToLower() == methodName && method.GetParameters().FirstOrDefault()?.ParameterType == parameterType)
+            {
+                invokeMethod = method;
+                break;
+            }
+        }
+
+        if (invokeMethod == null)
+        {
+            throw new Exception($"Method \"{invokeClass.GetType().Name}.{methodName}\" with parameter \"{parameterType}\" not found.");
+        }
+        return invokeMethod;
     }
 }
