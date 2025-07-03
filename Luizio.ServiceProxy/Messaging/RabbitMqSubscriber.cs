@@ -16,6 +16,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace Luizio.ServiceProxy.Messaging;
+
 public class RabbitMqSubscriber(IServiceProvider serviceProvider, IProxy proxy, RabbitMQ.Client.IConnectionFactory connectionFactory, ILogger<RabbitMqSubscriber> logger) : IHostedService
 {
     private IConnection connection;
@@ -87,7 +88,7 @@ public class RabbitMqSubscriber(IServiceProvider serviceProvider, IProxy proxy, 
                             currentUser.Metadata = metadata;
                         }
 
-                        var service = serviceProvider.GetRequiredKeyedService<SubscriptionStore>(subscription.Service.ToLower()); // .GetService(subscription.Service, scope.ServiceProvider);
+                        var service = serviceProvider.GetRequiredKeyedService(subscription.ServiceType, subscription.Service.ToLower());
                         var task = (Task)subscription.Method.Invoke(service, new object[] { message });
 
                         var resultProperty = subscription.Method.ReturnType.GetProperty(nameof(Task<object>.Result));
