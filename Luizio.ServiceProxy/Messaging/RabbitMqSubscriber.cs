@@ -88,7 +88,7 @@ public class RabbitMqSubscriber(IServiceProvider serviceProvider, IProxy proxy, 
                             currentUser.Metadata = metadata;
                         }
 
-                        var service = serviceProvider.GetRequiredKeyedService(subscription.ServiceType, subscription.Service.ToLower());
+                        var service = scope.ServiceProvider.GetRequiredKeyedService(subscription.ServiceType, subscription.Service.ToLower());
                         var task = (Task)subscription.Method.Invoke(service, new object[] { message });
 
                         var resultProperty = subscription.Method.ReturnType.GetProperty(nameof(Task<object>.Result));
