@@ -132,7 +132,7 @@ public class RabbitMqSubscriber(IServiceProvider serviceProvider, IProxy proxy, 
                             await channel.BasicPublishAsync(ea.Exchange, ea.RoutingKey, true, newProperties, ea.Body);
                         }
                         await channel.BasicNackAsync(ea.DeliveryTag, false, false);
-                        logger.LogError("Failed to process event on topic {Topic}. Retrying {Retrying}, retry count {RetryCount}", ea.Exchange, shouldRequeue, retryCount);
+                        logger.LogError("Failed to process event on topic {Topic}. Retrying {Retrying}, retry count {RetryCount}. Error Code: {ErrorCode} message: {Error}", ea.Exchange, shouldRequeue, retryCount, error.Code, error.Description);
                     }
                 }
                 else
