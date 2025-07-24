@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Reflection;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Luizio.ServiceProxy.Client;
 
@@ -91,9 +92,14 @@ public class InProcServiceProxy<TClass>(IServiceProvider sp, CurrentUser current
         MethodInfo? invokeMethod = null;
         methodName = methodName.ToLower();
 
+        List<Type> types = [parameterType];
+        if (parameterType.BaseType != null)
+        {
+            types.Add(parameterType.BaseType);
+        }
         foreach (var method in invokeClass.GetType().GetMethods())
         {
-            if (method.Name.ToLower() == methodName && method.GetParameters().FirstOrDefault()?.ParameterType == parameterType)
+            if (method.Name.ToLower() == methodName && types.Any(t => t == method.GetParameters().FirstOrDefault()?.ParameterType))
             {
                 invokeMethod = method;
                 break;
