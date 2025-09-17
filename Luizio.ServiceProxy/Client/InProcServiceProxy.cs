@@ -76,7 +76,7 @@ public class InProcServiceProxy<TClass>(IServiceProvider sp, CurrentUser current
     {
         if (response.HasError)
         {
-            logger.LogError("Method call to \"{AppName}.{ServiceName}.{MethodName}\" failed with error {ErrorCode} - \"{ErrorMessage}\".", appName, serviceName, methodName, response.Error.Code, response.Error.Description);
+            logger.Log(GetLogLevel(response.Error.Code), "Method call to \"{AppName}.{ServiceName}.{MethodName}\" failed with error {ErrorCode} - \"{ErrorMessage}\".", appName, serviceName, methodName, response.Error.Code, response.Error.Description);
             proxyActivity?.SetStatus(ActivityStatusCode.Error);
         }
         else
@@ -86,8 +86,19 @@ public class InProcServiceProxy<TClass>(IServiceProvider sp, CurrentUser current
         }
     }
 
+    private static LogLevel GetLogLevel(ErrorCode code) => code switch
+    {
+        ErrorCode.AlreadyExists => LogLevel.Warning,
+        ErrorCode.Error => LogLevel.Error,
+        ErrorCode.Exception => LogLevel.Error,
+        ErrorCode.InvalidInput => LogLevel.Information,
+        ErrorCode.NotFound => LogLevel.Warning,
+        ErrorCode.Skipped => LogLevel.Information,
+        ErrorCode.Unauthorized => LogLevel.Warning,
+        _ => LogLevel.Information,
+    };
 
-    private MethodInfo GetMethod(string methodName, Type parameterType, IService invokeClass)
+    private static MethodInfo GetMethod(string methodName, Type parameterType, IService invokeClass)
     {
         MethodInfo? invokeMethod = null;
         methodName = methodName.ToLower();
