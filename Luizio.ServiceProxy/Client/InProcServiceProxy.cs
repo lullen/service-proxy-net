@@ -91,7 +91,7 @@ public class InProcServiceProxy<TClass>(IServiceProvider sp, CurrentUser current
         ErrorCode.AlreadyExists => LogLevel.Warning,
         ErrorCode.Error => LogLevel.Error,
         ErrorCode.Exception => LogLevel.Error,
-        ErrorCode.InvalidInput => LogLevel.Information,
+        ErrorCode.InvalidInput => LogLevel.Warning,
         ErrorCode.NotFound => LogLevel.Warning,
         ErrorCode.Skipped => LogLevel.Information,
         ErrorCode.Unauthorized => LogLevel.Warning,
