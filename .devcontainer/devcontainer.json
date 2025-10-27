@@ -10,6 +10,7 @@
 		"ghcr.io/devcontainers/features/node:1": {}
 		// "ghcr.io/bartventer/arch-devcontainer-features/docker-outside-of-docker:1": {}
 	},
+  	"mounts": ["source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached"],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [5000, 5001],
