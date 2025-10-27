@@ -7,7 +7,7 @@ namespace Luizio.ServiceProxy.Models;
 
 public class CurrentUser
 {
-    private const string AuthenticationHeader = "Authentication";
+    private const string AuthorizationHeader = "Authorization";
     private const string SubjectClaim = "sub";
     public Guid Id
     {
@@ -34,16 +34,16 @@ public class CurrentUser
     {
         get
         {
-            return Metadata.SingleOrDefault(y => y.Key == AuthenticationHeader).Value ?? string.Empty;
+            return Metadata.SingleOrDefault(y => y.Key == AuthorizationHeader).Value ?? string.Empty;
         }
         set
         {
-            if (Metadata.Any(m => m.Key == AuthenticationHeader))
+            if (Metadata.Any(m => m.Key == AuthorizationHeader))
             {
-                var token = Metadata.SingleOrDefault(m => m.Key == AuthenticationHeader);
+                var token = Metadata.SingleOrDefault(m => m.Key == AuthorizationHeader);
                 Metadata.Remove(token);
             }
-            Metadata.Add(new(AuthenticationHeader, value));
+            Metadata.Add(new(AuthorizationHeader, value));
         }
     }
     //public CurrentUser(Dictionary<string, object> metadata)
