@@ -1,9 +1,9 @@
 using Microsoft.Extensions.Primitives;
-using Luizio.ServiceProxy.Client;
+using Luizio.iFX.Client;
 using Server.Interfaces;
 using System.IO;
 using System.Runtime.CompilerServices;
-using Luizio.ServiceProxy.Models;
+using Luizio.iFX.Models;
 using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);

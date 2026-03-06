@@ -1,0 +1,16 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Http/">
+    <Project Path="HttpClient/HttpClient.csproj" />
+    <Project Path="HttpServer/HttpServer.csproj" />
+  </Folder>
+  <Project Path="Luizio.iFX/Luizio.iFX.csproj" />
+  <Project Path="MessageTest/MessageTest.csproj" />
+  <Project Path="Server.Interfaces/Server.Interfaces.csproj" />
+  <Project Path="Server/Server.csproj" />
+  <Project Path="Test/Test.csproj" />
+</Solution>

@@ -1,7 +1,7 @@
 
-using Luizio.ServiceProxy.Client;
-using Luizio.ServiceProxy.Messaging;
-using Luizio.ServiceProxy.Models;
+using Luizio.iFX.Client;
+using Luizio.iFX.Messaging;
+using Luizio.iFX.Models;
 
 namespace MessageTest;
 

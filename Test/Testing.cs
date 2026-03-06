@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Luizio.ServiceProxy.Client;
-using Luizio.ServiceProxy.Models;
+using Luizio.iFX.Client;
+using Luizio.iFX.Models;
 using Server.Interfaces;
 namespace Test;
 
@@ -26,7 +26,7 @@ public class Testing
 			currentUser.Metadata.Add(KeyValuePair.Create("Test", "Testing"));
 			currentUser.Metadata.Add(KeyValuePair.Create("Authorization", "Bearer sdgsdf3245236"));
 		}
-		
+
 
 		var ress = await sp.Create<ServiceOne>("Server", "ServiceImpl").MethodOne(new MethodRequestOne { Text = "Hi there!" })
 			.Next(async (res) =>

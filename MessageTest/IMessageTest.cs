@@ -1,5 +1,5 @@
-﻿using Luizio.ServiceProxy.Models;
-using Luizio.ServiceProxy.Server;
+﻿using Luizio.iFX.Models;
+using Luizio.iFX.Server;
 
 namespace MessageTest;
 

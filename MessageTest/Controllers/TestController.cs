@@ -1,8 +1,9 @@
-using Luizio.ServiceProxy.Messaging;
-using Luizio.ServiceProxy.Models;
+using Luizio.iFX.Messaging;
+using Luizio.iFX.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MessageTest.Controllers;
+
 [ApiController]
 [Route("[controller]")]
 public class TestController : ControllerBase

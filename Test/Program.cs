@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
-using Luizio.ServiceProxy.Client;
+using Luizio.iFX.Client;
 using Server;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
@@ -18,7 +18,7 @@ class Program
 			var testing = sp.GetRequiredService<Testing>();
 			return await testing.Run();
 		});
-		
+
 		app.Run();
 	}
 
@@ -29,8 +29,8 @@ class Program
 			.AddTransient<Testing>()
 			.AddProxyClient(ProxyType.InProc)
 			.AddService<ServiceImpl>();
-			//.AddTransient<ServiceOne, ServiceImpl>()
-			//.AddTransient<ServiceTwo, ServiceImpl>()
+		//.AddTransient<ServiceOne, ServiceImpl>()
+		//.AddTransient<ServiceTwo, ServiceImpl>()
 
 		return builder;
 	}
