@@ -8,9 +8,10 @@ using System.Threading.Tasks;
 
 namespace Luizio.iFX.Messaging;
 
-public class RabbitMqPublisher : IEventPublisher
+public class RabbitMqPublisher : IEventPublisher, IAsyncDisposable
 {
     private readonly IConnectionFactory connectionFactory;
+    private IConnection? connection = null;
 
     public RabbitMqPublisher(IConnectionFactory connectionFactory)
     {
@@ -24,8 +25,12 @@ public class RabbitMqPublisher : IEventPublisher
 
     public async Task<Response<Empty>> Publish<T>(T message, string routingKey, CurrentUser currentUser) where T : class, new()
     {
-        var connection = await connectionFactory.CreateConnectionAsync();
-        var channel = await connection.CreateChannelAsync();
+        if (connection == null || !connection.IsOpen)
+        {
+            connection = await connectionFactory.CreateConnectionAsync();
+        }
+        using var channel = await connection.CreateChannelAsync();
+
 
         var messageBodyBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message));
 
@@ -59,5 +64,10 @@ public class RabbitMqPublisher : IEventPublisher
         await channel.BasicPublishAsync(exchange, routingKey, false, props, messageBodyBytes);
 
         return new Empty();
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        return connection?.DisposeAsync() ?? ValueTask.CompletedTask;
     }
 }

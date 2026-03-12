@@ -19,18 +19,29 @@ namespace Luizio.iFX.Messaging;
 
 public class RabbitMqSubscriber(IServiceProvider serviceProvider, IProxy proxy, RabbitMQ.Client.IConnectionFactory connectionFactory, ILogger<RabbitMqSubscriber> logger) : IHostedService
 {
-    private IConnection connection;
+    private IConnection? connection;
+    private List<IChannel> channels = [];
+    private readonly List<AsyncEventingBasicConsumer> consumers = [];
     private const string XRetryCount = "x-retry-count";
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        connection = await connectionFactory.CreateConnectionAsync();
+        connection = await connectionFactory.CreateConnectionAsync(cancellationToken);
         await Subscribe(connection);
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
     {
-        await connection.CloseAsync();
+        foreach (var channel in channels)
+        {
+            await channel.DisposeAsync();
+        }
+        consumers.Clear();
+        if (connection != null)
+        {
+            await connection.CloseAsync(cancellationToken);
+            await connection.DisposeAsync();
+        }
     }
 
     public async Task Subscribe(IConnection connection)
@@ -40,6 +51,7 @@ public class RabbitMqSubscriber(IServiceProvider serviceProvider, IProxy proxy, 
         {
             logger.LogInformation($"Subscribing to {subscription.Topic}_{subscription.Service}_{subscription.Method.Name.ToLower()}");
             var channel = await connection.CreateChannelAsync();
+            channels.Add(channel);
             await channel.ExchangeDeclareAsync(exchange: subscription.Topic, durable: true, type: ExchangeType.Fanout);
 
             var queueName = $"{subscription.Topic}_{subscription.Service}_{subscription.Method.Name.ToLower()}";
@@ -50,6 +62,7 @@ public class RabbitMqSubscriber(IServiceProvider serviceProvider, IProxy proxy, 
                 await channel.BasicQosAsync(0, subscription.PrefetchCount, false);
             }
             var consumer = new AsyncEventingBasicConsumer(channel);
+            consumers.Add(consumer);
 
             consumer.ReceivedAsync += async (model, ea) =>
             {
