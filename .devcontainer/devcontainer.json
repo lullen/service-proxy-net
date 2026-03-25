@@ -49,7 +49,8 @@
         "esbenp.prettier-vscode",
         "kosunix.guid",
         "bruno-api-client.bruno",
-        "hediet.vscode-drawio"
+        "hediet.vscode-drawio",
+        "anthropic.claude-code"
       ],
       "settings": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
