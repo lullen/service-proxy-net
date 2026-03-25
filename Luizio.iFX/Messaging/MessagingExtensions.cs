@@ -16,6 +16,7 @@ public static class MessagingExtensions
     {
         if (settings.MessagingType == MessagingType.RabbitMQ)
         {
+            services.AddHostedService<ExchangeInitializer>();
             services.AddHostedService<RabbitMqSubscriber>();
             services.AddSingleton<IEventPublisher, RabbitMqPublisher>();
         }

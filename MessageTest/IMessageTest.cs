@@ -1,4 +1,5 @@
-﻿using Luizio.iFX.Models;
+﻿using Luizio.iFX.Messaging;
+using Luizio.iFX.Models;
 using Luizio.iFX.Server;
 
 namespace MessageTest;
@@ -9,7 +10,7 @@ public interface IMessageTest : IService
     Task<Response<Empty>> Try(MessageEvent message);
 }
 
-public class MessageEvent
+public class MessageEvent: IEvent
 {
     public Guid Id { get; set; }
 }

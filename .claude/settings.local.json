@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc -l /home/ludwig/source/luizio/service-proxy-net/Luizio.iFX/*.cs /home/ludwig/source/luizio/service-proxy-net/Luizio.iFX/**/*.cs)",
+      "Bash(git -C /home/ludwig/source/luizio/service-proxy-net log --oneline)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git pull:*)",
+      "Bash(git push:*)",
+      "Bash(dotnet build:*)"
+    ]
+  }
+}

@@ -52,7 +52,6 @@ public class RabbitMqSubscriber(IServiceProvider serviceProvider, IProxy proxy, 
             logger.LogInformation($"Subscribing to {subscription.Topic}_{subscription.Service}_{subscription.Method.Name.ToLower()}");
             var channel = await connection.CreateChannelAsync();
             channels.Add(channel);
-            await channel.ExchangeDeclareAsync(exchange: subscription.Topic, durable: true, type: ExchangeType.Fanout);
 
             var queueName = $"{subscription.Topic}_{subscription.Service}_{subscription.Method.Name.ToLower()}";
             await channel.QueueDeclareAsync(queueName, true, false, false, null);
