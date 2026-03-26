@@ -7,7 +7,8 @@
       "Bash(git commit:*)",
       "Bash(git pull:*)",
       "Bash(git push:*)",
-      "Bash(dotnet build:*)"
+      "Bash(dotnet build:*)",
+      "Bash(dotnet test:*)"
     ]
   }
 }

@@ -29,7 +29,7 @@ public static class MessagingExtensions
             AutomaticRecoveryEnabled = true,
             NetworkRecoveryInterval = TimeSpan.FromSeconds(3)
         };
-        services.AddSingleton<IConnectionFactory>(connectionFactory);
+        services.AddSingleton<IRabbitMqConnectionFactory>(new RabbitMqConnectionFactoryWrapper(connectionFactory));
 
         var serviceStore = new SubscriptionStore();
         services.AddSingleton(serviceStore);

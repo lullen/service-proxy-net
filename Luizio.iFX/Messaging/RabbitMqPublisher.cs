@@ -1,4 +1,4 @@
-﻿using Luizio.iFX.Models;
+using Luizio.iFX.Models;
 using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
@@ -10,10 +10,10 @@ namespace Luizio.iFX.Messaging;
 
 public class RabbitMqPublisher : IEventPublisher, IAsyncDisposable
 {
-    private readonly IConnectionFactory connectionFactory;
-    private IConnection? connection = null;
+    private readonly IRabbitMqConnectionFactory connectionFactory;
+    private IRabbitMqConnection? connection = null;
 
-    public RabbitMqPublisher(IConnectionFactory connectionFactory)
+    public RabbitMqPublisher(IRabbitMqConnectionFactory connectionFactory)
     {
         this.connectionFactory = connectionFactory;
     }
@@ -29,11 +29,9 @@ public class RabbitMqPublisher : IEventPublisher, IAsyncDisposable
         {
             connection = await connectionFactory.CreateConnectionAsync();
         }
-        using var channel = await connection.CreateChannelAsync();
-
+        await using var channel = await connection.CreateChannelAsync();
 
         var messageBodyBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message));
-
 
         var props = new BasicProperties
         {

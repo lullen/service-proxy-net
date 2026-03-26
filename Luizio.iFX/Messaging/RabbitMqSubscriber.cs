@@ -1,12 +1,10 @@
-﻿using Luizio.iFX.Client;
+using Luizio.iFX.Client;
 using Luizio.iFX.Models;
 using Luizio.iFX.Server;
-using Microsoft.AspNetCore.Connections;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,11 +15,11 @@ using System.Threading.Tasks;
 
 namespace Luizio.iFX.Messaging;
 
-public class RabbitMqSubscriber(IServiceProvider serviceProvider, IProxy proxy, RabbitMQ.Client.IConnectionFactory connectionFactory, ILogger<RabbitMqSubscriber> logger) : IHostedService
+public class RabbitMqSubscriber(IServiceProvider serviceProvider, IProxy proxy, IRabbitMqConnectionFactory connectionFactory, ILogger<RabbitMqSubscriber> logger) : IHostedService
 {
-    private IConnection? connection;
-    private List<IChannel> channels = [];
-    private readonly List<AsyncEventingBasicConsumer> consumers = [];
+    private IRabbitMqConnection? connection;
+    private List<IRabbitMqChannel> channels = [];
+    private readonly List<IRabbitMqConsumer> consumers = [];
     private const string XRetryCount = "x-retry-count";
 
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -44,7 +42,7 @@ public class RabbitMqSubscriber(IServiceProvider serviceProvider, IProxy proxy, 
         }
     }
 
-    public async Task Subscribe(IConnection connection)
+    public async Task Subscribe(IRabbitMqConnection connection)
     {
         var subscriptions = serviceProvider.GetRequiredService<SubscriptionStore>().GetSubscriptions();
         foreach (var subscription in subscriptions)
@@ -60,7 +58,7 @@ public class RabbitMqSubscriber(IServiceProvider serviceProvider, IProxy proxy, 
             {
                 await channel.BasicQosAsync(0, subscription.PrefetchCount, false);
             }
-            var consumer = new AsyncEventingBasicConsumer(channel);
+            var consumer = channel.CreateConsumer();
             consumers.Add(consumer);
 
             consumer.ReceivedAsync += async (model, ea) =>
@@ -123,7 +121,6 @@ public class RabbitMqSubscriber(IServiceProvider serviceProvider, IProxy proxy, 
                     }
                     else
                     {
-
                         var shouldRequeue = error.Code == ErrorCode.Exception;
                         var retryCount = 0;
 
@@ -152,10 +149,9 @@ public class RabbitMqSubscriber(IServiceProvider serviceProvider, IProxy proxy, 
                 {
                     logger.LogError("Empty event received for \"{Topic}\".", ea.Exchange);
                 }
-
             };
 
-            await channel.BasicConsumeAsync(queue: queueName, autoAck: false, consumer: consumer);
+            await channel.BasicConsumeAsync(queueName, autoAck: false, consumer: consumer);
         }
     }
 }

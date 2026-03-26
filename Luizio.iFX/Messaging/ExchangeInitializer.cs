@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Luizio.iFX.Messaging;
 
-internal class ExchangeInitializer(IConnectionFactory connectionFactory, ILogger<ExchangeInitializer> logger) : IHostedService
+internal class ExchangeInitializer(IRabbitMqConnectionFactory connectionFactory, ILogger<ExchangeInitializer> logger) : IHostedService
 {
     public async Task StartAsync(CancellationToken cancellationToken)
     {
@@ -19,11 +19,11 @@ internal class ExchangeInitializer(IConnectionFactory connectionFactory, ILogger
                 .Where(t => t.IsClass && !t.IsAbstract && typeof(IEvent).IsAssignableFrom(t));
 
             await using var connection = await connectionFactory.CreateConnectionAsync(cancellationToken);
-            await using var channel = await connection.CreateChannelAsync(cancellationToken: cancellationToken);
+            await using var channel = await connection.CreateChannelAsync();
 
             foreach (var type in eventTypes)
             {
-                await channel.ExchangeDeclareAsync(exchange: type.FullName!, durable: true, type: ExchangeType.Fanout, cancellationToken: cancellationToken);
+                await channel.ExchangeDeclareAsync(type.FullName!, ExchangeType.Fanout, durable: true);
                 logger.LogInformation("Declared exchange {Exchange}.", type.FullName);
             }
         }
