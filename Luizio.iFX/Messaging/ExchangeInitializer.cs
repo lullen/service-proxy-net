@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Luizio.iFX.Messaging;
 
-internal class ExchangeInitializer(IRabbitMqConnectionFactory connectionFactory, ILogger<ExchangeInitializer> logger) : IHostedService
+public class ExchangeInitializer(IRabbitMqConnectionFactory connectionFactory, ILogger<ExchangeInitializer> logger) : IHostedService
 {
     public async Task StartAsync(CancellationToken cancellationToken)
     {
