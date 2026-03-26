@@ -24,13 +24,16 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: 10.0.x
 
       - name: Restore dependencies
         run: dotnet restore ${{env.PROJECT_FILE}}
 
       - name: Build
         run: dotnet build -c Release --no-restore ${{env.PROJECT_FILE}}
+
+      - name: Test
+        run: dotnet test Luizio.iFX.UnitTests
 
       - name: Pack
         run: dotnet pack -c Release --no-build ${{env.PROJECT_FILE}}
