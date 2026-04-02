@@ -39,7 +39,17 @@ public class ServiceProxy<T> : DispatchProxy where T : class, IService
         var returnType = targetMethod!.ReturnType.GetGenericArguments()[0].GetGenericArguments()[0];
         var method = invoke!.MakeGenericMethod(argumentType, returnType);
 
-        return method.Invoke(proxy, new[] { _app, _service, targetMethod.Name, args[0] });
+        var methodName = targetMethod.Name;
+        var service = _service!;
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        var result = (Task)method.Invoke(proxy, new[] { _app, service, methodName, args[0] })!;
+        result.ContinueWith(_ =>
+        {
+            sw.Stop();
+            ProxyMeter.ProxyDuration.Record(sw.Elapsed.TotalMilliseconds,
+                new System.Diagnostics.TagList { { "service", service }, { "method", methodName } });
+        }, TaskContinuationOptions.ExecuteSynchronously);
+        return result;
     }
 
     private IServiceProxy GetServiceProxy(ProxyType proxyType, IServiceProvider sp)

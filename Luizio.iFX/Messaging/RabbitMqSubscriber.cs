@@ -1,4 +1,4 @@
-using Luizio.iFX.Client;
+﻿using Luizio.iFX.Client;
 using Luizio.iFX.Models;
 using Luizio.iFX.Server;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace Luizio.iFX.Messaging;
 
-public class RabbitMqSubscriber(IServiceProvider serviceProvider, IProxy proxy, IRabbitMqConnectionFactory connectionFactory, ILogger<RabbitMqSubscriber> logger) : IHostedService
+public class RabbitMqSubscriber(IServiceProvider serviceProvider, IRabbitMqConnectionFactory connectionFactory, ILogger<RabbitMqSubscriber> logger) : IHostedService
 {
     private IRabbitMqConnection? connection;
     private List<IRabbitMqChannel> channels = [];
@@ -88,8 +88,8 @@ public class RabbitMqSubscriber(IServiceProvider serviceProvider, IProxy proxy, 
                                     var key = header.Key;
                                     var valueList = header.Value switch
                                     {
-                                        byte[] byteArray => JsonSerializer.Deserialize<List<string>>(Encoding.UTF8.GetString(byteArray)) ?? new List<string>(),
-                                        _ => new List<string>()
+                                        byte[] byteArray => JsonSerializer.Deserialize<List<string>>(Encoding.UTF8.GetString(byteArray)) ?? [],
+                                        _ => []
                                     };
 
                                     return valueList.Select(value => new KeyValuePair<string, string>(key, value));
@@ -98,11 +98,14 @@ public class RabbitMqSubscriber(IServiceProvider serviceProvider, IProxy proxy, 
                             currentUser.Metadata = metadata;
                         }
 
-                        var service = scope.ServiceProvider.GetRequiredKeyedService(subscription.ServiceType, subscription.Service.ToLower());
-                        var task = (Task)subscription.Method.Invoke(service, new object[] { message });
+                        var scopedProxy = scope.ServiceProvider.GetRequiredService<IProxy>();
+                        var createMethod = typeof(IProxy).GetMethods().First(m => m.Name == "Create" && m.GetParameters().Length == 3);
+                        var serviceProxy = createMethod.MakeGenericMethod(subscription.ServiceType!).Invoke(scopedProxy, [subscription.Service, subscription.Service, ProxyType.InProc]);
+
+                        var task = (Task)subscription.Method!.Invoke(serviceProxy, [message])!;
 
                         var resultProperty = subscription.Method.ReturnType.GetProperty(nameof(Task<object>.Result));
-                        var result = resultProperty.GetValue(task);
+                        var result = resultProperty!.GetValue(task);
                         if (result != null)
                         {
                             var errorProperty = result.GetType().GetProperty(nameof(Response<object>.Error));

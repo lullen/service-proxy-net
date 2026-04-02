@@ -19,7 +19,9 @@ public static class ProxyClientExtensions
 
 		services.AddScoped<CurrentUser>();
 		services.AddTransient<IProxy, Proxy>(f => new Proxy(f.GetRequiredService<IServiceProvider>(), proxyType));
-		services.AddOpenTelemetry().WithTracing(tracing => tracing.AddSource(ProxyActivitySource.SourceName));
+		services.AddOpenTelemetry()
+			.WithTracing(tracing => tracing.AddSource(ProxyActivitySource.SourceName))
+			.WithMetrics(metrics => metrics.AddMeter(ProxyMeter.MeterName));
 		return services;
 	}
 
