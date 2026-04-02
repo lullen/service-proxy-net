@@ -47,7 +47,7 @@ public class ServiceProxy<T> : DispatchProxy where T : class, IService
         {
             sw.Stop();
             ProxyMeter.ProxyDuration.Record(sw.Elapsed.TotalMilliseconds,
-                new System.Diagnostics.TagList { { "service", service }, { "method", methodName } });
+                new System.Diagnostics.TagList { { "service_class", service }, { "method", methodName } });
         }, TaskContinuationOptions.ExecuteSynchronously);
         return result;
     }
