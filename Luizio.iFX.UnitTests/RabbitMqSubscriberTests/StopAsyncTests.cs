@@ -70,7 +70,7 @@ public class StopAsyncTests
         var store = BuildStoreWithSubscription();
         await using var sp = BuildServiceProvider(store);
 
-        var subscriber = new RabbitMqSubscriber(sp, new Mock<IProxy>().Object, mockFactory.Object, NullLogger<RabbitMqSubscriber>.Instance);
+        var subscriber = new RabbitMqSubscriber(sp, mockFactory.Object, NullLogger<RabbitMqSubscriber>.Instance);
         await subscriber.StartAsync(CancellationToken.None);
         await subscriber.StopAsync(CancellationToken.None);
 
@@ -84,7 +84,7 @@ public class StopAsyncTests
         var store = BuildStoreWithSubscription();
         await using var sp = BuildServiceProvider(store);
 
-        var subscriber = new RabbitMqSubscriber(sp, new Mock<IProxy>().Object, mockFactory.Object, NullLogger<RabbitMqSubscriber>.Instance);
+        var subscriber = new RabbitMqSubscriber(sp, mockFactory.Object, NullLogger<RabbitMqSubscriber>.Instance);
         await subscriber.StartAsync(CancellationToken.None);
         await subscriber.StopAsync(CancellationToken.None);
 

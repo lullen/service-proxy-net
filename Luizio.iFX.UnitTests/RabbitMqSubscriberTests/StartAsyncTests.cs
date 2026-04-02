@@ -61,7 +61,7 @@ public class StartAsyncTests
         var store = BuildStoreWithSubscription();
         await using var sp = BuildServiceProvider(store);
 
-        var subscriber = new RabbitMqSubscriber(sp, new Mock<IProxy>().Object, mockFactory.Object, NullLogger<RabbitMqSubscriber>.Instance);
+        var subscriber = new RabbitMqSubscriber(sp, mockFactory.Object, NullLogger<RabbitMqSubscriber>.Instance);
         await subscriber.StartAsync(CancellationToken.None);
 
         mockFactory.Verify(f => f.CreateConnectionAsync(It.IsAny<CancellationToken>()), Times.Once);

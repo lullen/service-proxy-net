@@ -63,7 +63,7 @@ public class SubscribeTests
     }
 
     private static RabbitMqSubscriber BuildSubscriber(ServiceProvider sp)
-        => new(sp, new Mock<IProxy>().Object, new Mock<IRabbitMqConnectionFactory>().Object, NullLogger<RabbitMqSubscriber>.Instance);
+        => new(sp, new Mock<IRabbitMqConnectionFactory>().Object, NullLogger<RabbitMqSubscriber>.Instance);
 
     [TestMethod]
     public async Task CreatesChannelForEachSubscription()
