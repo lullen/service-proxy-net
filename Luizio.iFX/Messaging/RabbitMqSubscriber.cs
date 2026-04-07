@@ -99,16 +99,25 @@ public class RabbitMqSubscriber(IServiceProvider serviceProvider, IRabbitMqConne
                             currentUser.Metadata = metadata;
                         }
                         var service = scope.ServiceProvider.GetRequiredKeyedService(subscription.ServiceType!, subscription.Service.ToLower());
-                        var task = (Task<Response<object>>)subscription.Method.Invoke(service, new object[] { message })!;
-
-                        var response = await task;
-                        sw.Stop();
-                        ProxyMeter.ProxyDuration.Record(sw.Elapsed.TotalMilliseconds,
-                            new System.Diagnostics.TagList { { "service_class", service }, { "method", subscription.Method } });
-
-                        if (response.HasError)
+                        var invoked = subscription.Method.Invoke(service, [message]);
+                        if (invoked is not Task task)
                         {
-                            error = response.Error!;
+                            throw new InvalidOperationException("Subscription method must return a Task.");
+                        }
+
+                        await task;
+
+                        var result = task.GetType().GetProperty("Result")?.GetValue(task);
+                        if (result != null)
+                        {
+                            var hasErrorProp = result.GetType().GetProperty("HasError");
+                            var errorProp = result.GetType().GetProperty("Error");
+
+                            var hasError = (bool?)hasErrorProp?.GetValue(result) ?? false;
+                            if (hasError)
+                            {
+                                error = (Error?)errorProp?.GetValue(result) ?? new Error(ErrorCode.Exception, "Unknown error");
+                            }
                         }
                     }
                     catch (Exception e)
