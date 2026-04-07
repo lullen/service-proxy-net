@@ -73,6 +73,7 @@ public class RabbitMqSubscriber(IServiceProvider serviceProvider, IRabbitMqConne
                 var message = System.Text.Json.JsonSerializer.Deserialize(Encoding.UTF8.GetString(body), subscription.Method.GetParameters().First().ParameterType);
                 if (message != null)
                 {
+                    var sw = System.Diagnostics.Stopwatch.StartNew();
                     var error = new Error();
                     try
                     {
@@ -97,19 +98,17 @@ public class RabbitMqSubscriber(IServiceProvider serviceProvider, IRabbitMqConne
                                 .ToList();
                             currentUser.Metadata = metadata;
                         }
+                        var service = scope.ServiceProvider.GetRequiredKeyedService(subscription.ServiceType!, subscription.Service.ToLower());
+                        var task = (Task<Response<object>>)subscription.Method.Invoke(service, new object[] { message })!;
 
-                        var scopedProxy = scope.ServiceProvider.GetRequiredService<IProxy>();
-                        var createMethod = typeof(IProxy).GetMethods().First(m => m.Name == "Create" && m.GetParameters().Length == 3);
-                        var serviceProxy = createMethod.MakeGenericMethod(subscription.ServiceType!).Invoke(scopedProxy, [subscription.Service, subscription.Service, ProxyType.InProc]);
+                        var response = await task;
+                        sw.Stop();
+                        ProxyMeter.ProxyDuration.Record(sw.Elapsed.TotalMilliseconds,
+                            new System.Diagnostics.TagList { { "service_class", service }, { "method", subscription.Method } });
 
-                        var task = (Task)subscription.Method!.Invoke(serviceProxy, [message])!;
-
-                        var resultProperty = subscription.Method.ReturnType.GetProperty(nameof(Task<object>.Result));
-                        var result = resultProperty!.GetValue(task);
-                        if (result != null)
+                        if (response.HasError)
                         {
-                            var errorProperty = result.GetType().GetProperty(nameof(Response<object>.Error));
-                            error = errorProperty?.GetValue(result, null) as Error ?? new Error();
+                            error = response.Error!;
                         }
                     }
                     catch (Exception e)
