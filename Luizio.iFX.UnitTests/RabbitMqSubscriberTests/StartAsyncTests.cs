@@ -26,9 +26,10 @@ public class StartAsyncTests
         var store = new SubscriptionStore();
         var subscription = new Subscription
         {
-            ServiceType = typeof(TestSubscriberService),
+            Invoker = (sp, cu, msg) => Task.FromResult(Error.Empty),
+            EventType = typeof(TestEvent),
+            MethodName = nameof(TestSubscriberService.Handle),
             Service = typeof(TestSubscriberService).Name.ToLower(),
-            Method = typeof(TestSubscriberService).GetMethod(nameof(TestSubscriberService.Handle))!,
             Topic = typeof(TestEvent).FullName!,
             RetryCount = 3,
             PrefetchCount = 0

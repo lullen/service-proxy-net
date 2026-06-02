@@ -1,14 +1,16 @@
 
 using System;
-using System.Linq;
-using System.Reflection;
+using System.Threading.Tasks;
+using Luizio.iFX.Models;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Luizio.iFX.Messaging;
 
 internal class Subscription
 {
-    public Type? ServiceType { get; set; }
-    public MethodInfo? Method { get; set; }
+    public Func<IServiceProvider, CurrentUser, object, Task<Error>>? Invoker { get; set; }
+    public Type EventType { get; set; } = typeof(object);
+    public string MethodName { get; set; } = string.Empty;
     public string Topic { get; set; } = string.Empty;
     public string PubSub { get; set; } = string.Empty;
     public string? DeadLetterQueue { get; set; }

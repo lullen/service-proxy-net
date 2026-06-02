@@ -25,9 +25,10 @@ public class SubscribeTests
     {
         return new Subscription
         {
-            ServiceType = typeof(TestSubscriberService),
+            Invoker = (sp, cu, msg) => Task.FromResult(Error.Empty),
+            EventType = typeof(TestEvent),
+            MethodName = nameof(TestSubscriberService.Handle),
             Service = typeof(TestSubscriberService).Name.ToLower(),
-            Method = typeof(TestSubscriberService).GetMethod(nameof(TestSubscriberService.Handle))!,
             Topic = typeof(TestEvent).FullName!,
             RetryCount = 3,
             PrefetchCount = prefetchCount
@@ -84,7 +85,7 @@ public class SubscribeTests
         var subscription = BuildSubscription();
         var store = BuildStoreWith(subscription);
         await using var sp = BuildServiceProvider(store);
-        var expectedQueueName = $"{subscription.Topic}_{subscription.Service}_{subscription.Method!.Name.ToLower()}";
+        var expectedQueueName = $"{subscription.Topic}_{subscription.Service}_{subscription.MethodName.ToLower()}";
 
         await BuildSubscriber(sp).Subscribe(mockConnection.Object);
 
@@ -98,7 +99,7 @@ public class SubscribeTests
         var subscription = BuildSubscription();
         var store = BuildStoreWith(subscription);
         await using var sp = BuildServiceProvider(store);
-        var expectedQueueName = $"{subscription.Topic}_{subscription.Service}_{subscription.Method!.Name.ToLower()}";
+        var expectedQueueName = $"{subscription.Topic}_{subscription.Service}_{subscription.MethodName.ToLower()}";
 
         await BuildSubscriber(sp).Subscribe(mockConnection.Object);
 
@@ -137,7 +138,7 @@ public class SubscribeTests
         var subscription = BuildSubscription();
         var store = BuildStoreWith(subscription);
         await using var sp = BuildServiceProvider(store);
-        var expectedQueueName = $"{subscription.Topic}_{subscription.Service}_{subscription.Method!.Name.ToLower()}";
+        var expectedQueueName = $"{subscription.Topic}_{subscription.Service}_{subscription.MethodName.ToLower()}";
 
         await BuildSubscriber(sp).Subscribe(mockConnection.Object);
 

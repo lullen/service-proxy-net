@@ -1,6 +1,4 @@
-﻿using Luizio.iFX.Client;
-using Luizio.iFX.Models;
-using Luizio.iFX.Server;
+﻿using Luizio.iFX.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -47,11 +45,11 @@ public class RabbitMqSubscriber(IServiceProvider serviceProvider, IRabbitMqConne
         var subscriptions = serviceProvider.GetRequiredService<SubscriptionStore>().GetSubscriptions();
         foreach (var subscription in subscriptions)
         {
-            logger.LogInformation($"Subscribing to {subscription.Topic}_{subscription.Service}_{subscription.Method.Name.ToLower()}");
+            logger.LogInformation($"Subscribing to {subscription.Topic}_{subscription.Service}_{subscription.MethodName.ToLower()}");
             var channel = await connection.CreateChannelAsync();
             channels.Add(channel);
 
-            var queueName = $"{subscription.Topic}_{subscription.Service}_{subscription.Method.Name.ToLower()}";
+            var queueName = $"{subscription.Topic}_{subscription.Service}_{subscription.MethodName.ToLower()}";
             await channel.QueueDeclareAsync(queueName, true, false, false, null);
             await channel.QueueBindAsync(queueName, subscription.Topic, string.Empty);
             if (subscription.PrefetchCount > 0)
@@ -64,16 +62,15 @@ public class RabbitMqSubscriber(IServiceProvider serviceProvider, IRabbitMqConne
             consumer.ReceivedAsync += async (model, ea) =>
             {
                 var body = ea.Body.ToArray();
-                if (subscription.Method is null)
+                if (subscription.Invoker is null)
                 {
-                    logger.LogError("Subscription method not set for event \"{Topic}\".", ea.Exchange);
+                    logger.LogError("Subscription invoker not set for event \"{Topic}\".", ea.Exchange);
                     return;
                 }
                 logger.LogInformation("Event received on {Subscription}.", subscription.Topic);
-                var message = System.Text.Json.JsonSerializer.Deserialize(Encoding.UTF8.GetString(body), subscription.Method.GetParameters().First().ParameterType);
+                var message = System.Text.Json.JsonSerializer.Deserialize(Encoding.UTF8.GetString(body), subscription.EventType);
                 if (message != null)
                 {
-                    var sw = System.Diagnostics.Stopwatch.StartNew();
                     var error = new Error();
                     try
                     {
@@ -98,27 +95,7 @@ public class RabbitMqSubscriber(IServiceProvider serviceProvider, IRabbitMqConne
                                 .ToList();
                             currentUser.Metadata = metadata;
                         }
-                        var service = scope.ServiceProvider.GetRequiredKeyedService(subscription.ServiceType!, subscription.Service.ToLower());
-                        var invoked = subscription.Method.Invoke(service, [message]);
-                        if (invoked is not Task task)
-                        {
-                            throw new InvalidOperationException("Subscription method must return a Task.");
-                        }
-
-                        await task;
-
-                        var result = task.GetType().GetProperty("Result")?.GetValue(task);
-                        if (result != null)
-                        {
-                            var hasErrorProp = result.GetType().GetProperty("HasError");
-                            var errorProp = result.GetType().GetProperty("Error");
-
-                            var hasError = (bool?)hasErrorProp?.GetValue(result) ?? false;
-                            if (hasError)
-                            {
-                                error = (Error?)errorProp?.GetValue(result) ?? new Error(ErrorCode.Exception, "Unknown error");
-                            }
-                        }
+                        error = await subscription.Invoker(serviceProvider, currentUser, message);
                     }
                     catch (Exception e)
                     {
