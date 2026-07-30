@@ -9,5 +9,5 @@ namespace Luizio.iFX.Messaging;
 
 public interface IEventPublisher
 {
-    Task<Response<Empty>> Publish<T>(T message, CurrentUser currentUser) where T : class, new();
+    Task<Response<Empty>> Publish<T>(T message, CurrentUser currentUser) where T : class, IEvent, new();
 }

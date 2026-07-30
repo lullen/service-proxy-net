@@ -2,6 +2,8 @@
 using Luizio.iFX.Models;
 using Luizio.iFX.Server;
 using Microsoft.Extensions.DependencyInjection;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Trace;
 using RabbitMQ.Client;
 using System;
 using System.Linq;
@@ -16,10 +18,13 @@ public static class MessagingExtensions
     {
         if (settings.MessagingType == MessagingType.RabbitMQ)
         {
-            services.AddHostedService<ExchangeInitializer>();
             services.AddHostedService<RabbitMqSubscriber>();
             services.AddSingleton<IEventPublisher, RabbitMqPublisher>();
         }
+
+        services.AddOpenTelemetry()
+            .WithTracing(tracing => tracing.AddSource(MessagingActivitySource.SourceName))
+            .WithMetrics(metrics => metrics.AddMeter(MessagingMeter.MeterName));
 
         var connectionFactory = new ConnectionFactory
         {
@@ -36,7 +41,7 @@ public static class MessagingExtensions
         return new MessagingBuilder(services, serviceStore);
     }
 
-    public static MessagingBuilder RegisterSubscriber<TService>(this MessagingBuilder services, Expression<Func<TService, Delegate>> methodSelector, SubscriberSettings settings) where TService : class, IService
+    public static MessagingBuilder RegisterSubscriber<TService>(this MessagingBuilder services, Expression<Func<TService, Delegate>> methodSelector, SubscriberSettings settings, Type[]? bindTo = null) where TService : class, IService
     {
         if (!services.Services.Any(a => a.IsKeyedService && a.ServiceType == typeof(TService)))
         {
@@ -46,7 +51,7 @@ public static class MessagingExtensions
         {
             settings.PubSub = "pubsub";
         }
-        services.ServiceStore.RegisterSubscriber<TService>(methodSelector, settings);
+        services.ServiceStore.RegisterSubscriber<TService>(methodSelector, settings, bindTo);
 
         return services;
     }

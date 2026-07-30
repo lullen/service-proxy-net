@@ -30,7 +30,9 @@ public class StartAsyncTests
             EventType = typeof(TestEvent),
             MethodName = nameof(TestSubscriberService.Handle),
             Service = typeof(TestSubscriberService).Name.ToLower(),
-            Topic = typeof(TestEvent).FullName!,
+            QueueTopic = typeof(TestEvent).FullName!,
+            BoundExchanges = [typeof(TestEvent).FullName!],
+            TypesByExchange = new Dictionary<string, Type> { [typeof(TestEvent).FullName!] = typeof(TestEvent) },
             RetryCount = 3,
             PrefetchCount = 0
         };
@@ -55,6 +57,8 @@ public class StartAsyncTests
         mockChannel.Setup(c => c.QueueDeclareAsync(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<IDictionary<string, object?>>()))
             .Returns(Task.CompletedTask);
         mockChannel.Setup(c => c.QueueBindAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(Task.CompletedTask);
+        mockChannel.Setup(c => c.ExchangeDeclareAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
             .Returns(Task.CompletedTask);
         mockChannel.Setup(c => c.BasicConsumeAsync(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<IRabbitMqConsumer>()))
             .ReturnsAsync("consumer-tag");

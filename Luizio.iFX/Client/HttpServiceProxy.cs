@@ -28,7 +28,7 @@ public class HttpServiceProxy : IServiceProxy
     }
 
     public async Task<Response<TRes>> Invoke<T, TRes>(string appName, string serviceName, string methodName, T requestData)
-        where T : class, new()
+        where T : class
         where TRes : class
     {
         using var scope = sp.CreateScope();

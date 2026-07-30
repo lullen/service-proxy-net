@@ -15,7 +15,7 @@ namespace Luizio.iFX.Client;
 public class InProcServiceProxy<TClass>(IServiceProvider sp, CurrentUser currentUser) : IServiceProxy where TClass : class, IService
 {
     public async Task<Response<TRes>> Invoke<TParam, TRes>(string appName, string serviceName, string methodName, TParam request)
-        where TParam : class, new()
+        where TParam : class
         where TRes : class
     {
         using var scope = sp.CreateScope();

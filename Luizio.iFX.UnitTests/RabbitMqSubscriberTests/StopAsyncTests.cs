@@ -30,7 +30,9 @@ public class StopAsyncTests
             EventType = typeof(TestEvent),
             MethodName = nameof(TestSubscriberService.Handle),
             Service = typeof(TestSubscriberService).Name.ToLower(),
-            Topic = typeof(TestEvent).FullName!,
+            QueueTopic = typeof(TestEvent).FullName!,
+            BoundExchanges = [typeof(TestEvent).FullName!],
+            TypesByExchange = new Dictionary<string, Type> { [typeof(TestEvent).FullName!] = typeof(TestEvent) },
             RetryCount = 3,
             PrefetchCount = 0
         };
